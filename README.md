@@ -10,6 +10,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Macros](#macros)
   - [Pattern Matching](#pattern-matching)
   - [Detalhes de sintaxe](#detalhes-de-sintaxe)
+  - [Funções anônimas](#funções-anônimas)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -79,6 +80,16 @@ Segue um resumo em português, pronto para colar no seu README.md:
 - Funções privadas: use `defp` para criar funções acessíveis apenas dentro do próprio módulo (útil para organizar código sem expor implementação).
 - Funções privadas podem ser chamadas normalmente por outras funções do mesmo módulo; externamente elas não estão disponíveis.
 - Alternativa às funções nomeadas: funções anônimas podem ser usadas quando você precisa passar/compor comportamento sem declarar uma função pública.
+
+Segue um resumo em português, pronto para colar no seu README.md:
+
+## Funções anônimas
+
+- Funções são cidadãos de primeira classe: podem ser atribuídas a variáveis, passadas como parâmetro e retornadas por outras funções.
+- Captura de função existente: use o operador & com aridade para referenciar uma função já definida — ex.: is_number/1 → i_n = &is_number/1; chame com i_n.(valor).
+- Função anônima literal: fn params -> corpo end. Ex.: Enum.map(lista, fn num -> num * 2 end).
+- Sintaxe de captura curta: &(&1 * 2) é equivalente a fn x -> x * 2 end; &1, &2 ... referenciam parâmetros por posição.
+- Use funções anônimas quando precisar de comportamento temporário ou passar lógica inline (equivalente a closures/lambdas em outras linguagens).
 
 ## Objetivo
 
