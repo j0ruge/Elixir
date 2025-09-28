@@ -11,6 +11,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Pattern Matching](#pattern-matching)
   - [Detalhes de sintaxe](#detalhes-de-sintaxe)
   - [Funções anônimas](#funções-anônimas)
+  - [Bom e velho if/else](#bom-e-velho-ifelse)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -86,10 +87,41 @@ Segue um resumo em português, pronto para colar no seu README.md:
 ## Funções anônimas
 
 - Funções são cidadãos de primeira classe: podem ser atribuídas a variáveis, passadas como parâmetro e retornadas por outras funções.
-- Captura de função existente: use o operador & com aridade para referenciar uma função já definida — ex.: is_number/1 → i_n = &is_number/1; chame com i_n.(valor).
-- Função anônima literal: fn params -> corpo end. Ex.: Enum.map(lista, fn num -> num * 2 end).
-- Sintaxe de captura curta: &(&1 * 2) é equivalente a fn x -> x * 2 end; &1, &2 ... referenciam parâmetros por posição.
+- Captura de função existente: use o operador & com aridade para referenciar uma função já definida — ex.: `is_number/1 → i_n = &is_number/1`; chame com `i_n.(valor)`.
+- Função anônima literal: `fn params -> corpo end`. Ex.: `Enum.map(lista, fn num -> num * 2 end)`.
+- Sintaxe de captura curta: `&(&1 * 2)` é equivalente a `fn x -> x * 2 end`; &1, &2 ... referenciam parâmetros por posição.
 - Use funções anônimas quando precisar de comportamento temporário ou passar lógica inline (equivalente a closures/lambdas em outras linguagens).
+
+## Bom e velho if/else
+
+- If/else: sintaxe simples — `if condição do ... else ... end`.
+  Ex.:
+
+  ```elixir
+  def primeiro(lista) do  
+    if length(lista) == 0 do  
+      nil  
+    else  
+      hd(lista)  
+    end  
+  end
+  ```
+
+- Unless: oposto de if — `unless condição do ... end` (possui else opcional).
+
+- Observações:
+  - true, false e nil são literais especiais (não usam dois-pontos).
+  - Não há elseif direto; para fluxo equivalente é preciso aninhar if dentro de else (menos elegante).
+
+- Preferência em Elixir:
+  - Muitas vezes evita-se condicionais usando pattern matching: definir várias cláusulas da mesma função para casos distintos. Ex.:  
+
+```elixir
+    def primeiro([]), do: nil  
+    def primeiro([h | _]), do: h
+```
+
+- Guard clauses: alternativa para selecionar cláusulas de função com condições adicionais (útil quando pattern matching simples não é suficiente).
 
 ## Objetivo
 
