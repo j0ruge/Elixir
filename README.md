@@ -9,6 +9,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Como importar um arquivo no IEx](#como-importar-um-arquivo-no-iex)
   - [Macros](#macros)
   - [Pattern Matching](#pattern-matching)
+  - [Detalhes de sintaxe](#detalhes-de-sintaxe)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -68,6 +69,16 @@ Mais sobre macros pode ser encontrado na [documentação oficial](https://hexdoc
 
 Aplicações comuns: extrair resultados de funções que retornam `{:ok, valor}`/`{:error, motivo}`, decompor listas e direcionar fluxo por padrões de entrada nas funções.
 
+Segue um resumo em português, pronto para colar no seu README.md:
+
+## Detalhes de sintaxe
+
+- Funções são cidadãos de primeira classe: podem ser atribuídas a variáveis, passadas como parâmetro e retornadas por outras funções.
+- Sintaxe curta: se a função tem apenas uma expressão, pode ser definida em uma única linha usando vírgula, `do:` e o corpo. Ex.: def soma(a, b), do: a + b
+- Todas as funções devem ser definidas dentro de um módulo — `def` (macro) não pode ser usado fora de módulos.
+- Funções privadas: use `defp` para criar funções acessíveis apenas dentro do próprio módulo (útil para organizar código sem expor implementação).
+- Funções privadas podem ser chamadas normalmente por outras funções do mesmo módulo; externamente elas não estão disponíveis.
+- Alternativa às funções nomeadas: funções anônimas podem ser usadas quando você precisa passar/compor comportamento sem declarar uma função pública.
 
 ## Objetivo
 

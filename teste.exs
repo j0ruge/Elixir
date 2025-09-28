@@ -6,15 +6,15 @@ defmodule MyModule do
 
     require Integer
     
-    def gabiru do
-        inspect(MyMath.sum(1,2))
+    def gabiru(parameter1, parameter2) do
+        inspect(MyMath.sum(parameter1, parameter2))
     end
 
     def is_even(number) do
         puts("The number #{number} is even? #{Integer.is_even(number)}")
     end
 
-    def inspect(parametro) do
+    defp inspect(parametro) do
         puts("Inspecionando o código...")
         puts(parametro)
         puts("Inspeção finalizada.")
