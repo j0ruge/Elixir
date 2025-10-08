@@ -8,13 +8,17 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Como executar exemplos](#como-executar-exemplos)
   - [Como importar um arquivo no IEx](#como-importar-um-arquivo-no-iex)
   - [Tipos de Dados](#tipos-de-dados)
+    - [Strings](#strings)
+      - [Concatenação e interpolação](#concatenação-e-interpolação)
+      - [Caracteres de escape](#caracteres-de-escape)
+      - [Conclusão](#conclusão)
     - [Listas](#listas)
       - [Estrutura interna](#estrutura-interna)
       - [Operações básicas](#operações-básicas)
       - [Cabeça e cauda](#cabeça-e-cauda)
       - [Operador cons (`|`)](#operador-cons-)
       - [Pattern Matching](#pattern-matching)
-      - [Conclusão](#conclusão)
+      - [Conclusão](#conclusão-1)
   - [Macros](#macros)
   - [Pattern Matching](#pattern-matching-1)
   - [Detalhes de sintaxe](#detalhes-de-sintaxe)
@@ -65,6 +69,61 @@ Ainda pode se usar `import_file("nome_do_arquivo.exs")` para importar o arquivo.
 ---
 
 ## Tipos de Dados
+
+Claro! Aqui está o resumo formatado para o teu `README.md`, ajustado para o nível mais alto ser **### Strings**:
+
+---
+
+### Strings
+
+Strings em Elixir são sempre declaradas **entre aspas duplas** (`"texto"`).  
+Diferente de algumas linguagens como JavaScript ou PHP, que permitem aspas simples, em Elixir **aspas simples representam uma *charlist*** — uma lista de códigos numéricos referentes a caracteres (`'texto'` → `[116, 101, 120, 116, 111]`).  
+Por isso, no uso cotidiano, trabalhamos apenas com strings entre aspas duplas.
+
+As strings em Elixir são **UTF-8 por padrão**, o que garante suporte a acentuação e caracteres especiais sem necessidade de configuração adicional.  
+Isso significa que o tamanho em bytes (`byte_size/1`) pode ser diferente do número de caracteres (`String.length/1`), já que alguns caracteres acentuados ocupam mais de um byte.
+
+Exemplo:
+
+```elixir
+byte_size("Vinícius")   # 9
+String.length("Vinícius") # 8
+```
+
+#### Concatenação e interpolação
+
+Para **concatenar strings**, utiliza-se o operador `<>`:
+
+```elixir
+"Bem-vindo " <> nome <> "."
+```
+
+Outra forma mais legível é a **interpolação**, que insere variáveis dentro da string usando `#{}`:
+
+```elixir
+"Bem-vindo #{nome}."
+```
+
+#### Caracteres de escape
+
+Assim como em outras linguagens, Elixir suporta caracteres de escape, como `\n` para quebra de linha:
+
+```elixir
+IO.puts("Bem-vindo\n#{nome}.")
+```
+
+#### Conclusão
+
+Strings em Elixir são:
+
+* **imutáveis** (como todos os tipos de dados na linguagem);
+* **UTF-8 nativas**;
+* manipuladas com facilidade usando o módulo `String`;
+* compatíveis com operações de concatenação e interpolação elegantes.
+
+A partir desse ponto, o curso segue para **tipos compostos**, como listas, que permitem trabalhar com coleções de valores.
+
+---
 
 ### Listas
 
