@@ -7,11 +7,21 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Estrutura do Repositório](#estrutura-do-repositório)
   - [Como executar exemplos](#como-executar-exemplos)
   - [Como importar um arquivo no IEx](#como-importar-um-arquivo-no-iex)
+  - [Tipos de Dados](#tipos-de-dados)
+    - [Listas](#listas)
+      - [Estrutura interna](#estrutura-interna)
+      - [Operações básicas](#operações-básicas)
+      - [Cabeça e cauda](#cabeça-e-cauda)
+      - [Operador cons (`|`)](#operador-cons-)
+      - [Pattern Matching](#pattern-matching)
+      - [Conclusão](#conclusão)
   - [Macros](#macros)
-  - [Pattern Matching](#pattern-matching)
+  - [Pattern Matching](#pattern-matching-1)
   - [Detalhes de sintaxe](#detalhes-de-sintaxe)
   - [Funções anônimas](#funções-anônimas)
   - [Bom e velho if/else](#bom-e-velho-ifelse)
+  - [Controle de Fluxo](#controle-de-fluxo)
+    - [Recursividade](#recursividade)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -52,6 +62,94 @@ Importar um arquivo no IEx (*Interactive Elixir*) permite que você utilize as f
 
 Ainda pode se usar `import_file("nome_do_arquivo.exs")` para importar o arquivo.
 
+---
+
+## Tipos de Dados
+
+### Listas
+
+Em Elixir, listas são coleções ordenadas de elementos delimitadas por colchetes, por exemplo:
+
+```elixir
+primeira_lista = [1, 2, 3]
+```
+
+Os elementos podem ser de tipos diferentes:
+
+```elixir
+[1, "dois", :tres, 4.0]
+```
+
+#### Estrutura interna
+
+Diferente de arrays em linguagens como Java, C# ou JavaScript, as listas em Elixir são **listas ligadas simples**.
+Cada elemento contém:
+
+- um **valor**, e
+- um **ponteiro** para o próximo elemento.
+
+Por isso, adicionar elementos **no final** é uma operação **custosa**, enquanto adicionar **no início** é **muito rápido**.
+
+#### Operações básicas
+
+- **Concatenação:**
+
+  ```elixir
+  [1, 2, 3] ++ [4, 5, 6]
+  # => [1, 2, 3, 4, 5, 6]
+  ```
+
+- **Remoção:**
+
+  ```elixir
+  [1, 2, 3] -- [2]
+  # => [1, 3]
+  ```
+
+Essas operações retornam **novas listas**, não alteram a original — por isso dizemos que Elixir é **imutável**.
+
+#### Cabeça e cauda
+
+* `hd(lista)` retorna o **primeiro elemento** (head).
+* `tl(lista)` retorna o **restante da lista** (tail).
+
+Exemplo:
+
+```elixir
+hd([1, 2, 3]) # => 1
+tl([1, 2, 3]) # => [2, 3]
+```
+
+#### Operador cons (`|`)
+
+O operador `|` é usado para construir listas rapidamente:
+
+```elixir
+[0 | [1, 2, 3]]
+# => [0, 1, 2, 3]
+```
+
+Ele indica que `0` é a **cabeça** e `[1, 2, 3]` é a **cauda**.
+
+#### Pattern Matching
+
+Podemos decompor listas com **pattern matching**:
+
+```elixir
+[head | tail] = [0, 1, 2, 3, 4]
+# head => 0
+# tail => [1, 2, 3, 4]
+```
+
+#### Conclusão
+
+- Listas em Elixir são **listas ligadas simples**.
+- Inserir no início é eficiente; inserir no final é lento.
+- Elas são **imutáveis**, e cada operação retorna uma nova lista.
+- O conceito de **head** e **tail** é fundamental e se conecta diretamente ao **pattern matching**, amplamente usado na linguagem.
+
+---
+
 ## Macros
 
 Macros são uma forma poderosa de metaprogramação em Elixir, permitindo que você escreva código que gera código. Elas são definidas usando a palavra-chave `defmacro` e podem ser usadas para criar DSLs (Domain Specific Languages) ou para simplificar padrões repetitivos em seu código.
@@ -71,8 +169,6 @@ Mais sobre macros pode ser encontrado na [documentação oficial](https://hexdoc
 
 Aplicações comuns: extrair resultados de funções que retornam `{:ok, valor}`/`{:error, motivo}`, decompor listas e direcionar fluxo por padrões de entrada nas funções.
 
-Segue um resumo em português, pronto para colar no seu README.md:
-
 ## Detalhes de sintaxe
 
 - Funções são cidadãos de primeira classe: podem ser atribuídas a variáveis, passadas como parâmetro e retornadas por outras funções.
@@ -81,8 +177,6 @@ Segue um resumo em português, pronto para colar no seu README.md:
 - Funções privadas: use `defp` para criar funções acessíveis apenas dentro do próprio módulo (útil para organizar código sem expor implementação).
 - Funções privadas podem ser chamadas normalmente por outras funções do mesmo módulo; externamente elas não estão disponíveis.
 - Alternativa às funções nomeadas: funções anônimas podem ser usadas quando você precisa passar/compor comportamento sem declarar uma função pública.
-
-Segue um resumo em português, pronto para colar no seu README.md:
 
 ## Funções anônimas
 
@@ -122,6 +216,31 @@ Segue um resumo em português, pronto para colar no seu README.md:
 ```
 
 - Guard clauses: alternativa para selecionar cláusulas de função com condições adicionais (útil quando pattern matching simples não é suficiente).
+
+## Controle de Fluxo
+
+### Recursividade
+
+Diferente das linguagens imperativas, Elixir **não possui loops tradicionais** como `for` ou `while`. Em vez disso, o controle de repetição é feito por meio de **recursão** — uma função chamando a si mesma até que uma condição de parada seja atingida.
+
+No exemplo apresentado, foi criada uma função `tabuada/1` que, ao receber um número, chama outra versão da função (`tabuada/2`) responsável por multiplicar esse número por valores de 1 a 10. Quando o segundo parâmetro chega a 11, a recursão é interrompida com `def tabuada(_, 11), do: nil`.
+
+Esse comportamento é controlado por **pattern matching**, que direciona cada chamada para a versão correta da função, eliminando a necessidade de condicionais explícitas como `if` ou `while`. Assim, temos funções específicas para:
+- iniciar o processo (`tabuada/1`),
+- processar a multiplicação (`tabuada/2`),
+- e encerrar a recursão (`tabuada(_, 11)`).
+
+O instrutor também propõe um desafio: **fazer a função retornar uma lista** com os resultados da tabuada, em vez de apenas imprimir no console — exercitando o uso de recursão e imutabilidade.
+
+Por fim, foi introduzido o conceito de **tail recursion** (*recursão de cauda*), uma otimização do Elixir (herdada da Erlang) que evita o estouro da pilha quando a **última operação** de uma função é a chamada recursiva. Nesse caso, o compilador otimiza a execução como se fosse um loop interno, tornando o processo mais eficiente.
+
+Em resumo, a recursividade em Elixir substitui os loops tradicionais, explorando:
+- **Pattern matching** para definir condições de parada;
+- **Imutabilidade** para garantir segurança e previsibilidade;
+- **Tail recursion** para eficiência na execução.
+
+A prática constante é fundamental para se acostumar com essa abordagem funcional de controle de fluxo.
+
 
 ## Objetivo
 
