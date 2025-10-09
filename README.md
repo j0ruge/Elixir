@@ -116,10 +116,10 @@ IO.puts("Bem-vindo\n#{nome}.")
 
 Strings em Elixir são:
 
-* **imutáveis** (como todos os tipos de dados na linguagem);
-* **UTF-8 nativas**;
-* manipuladas com facilidade usando o módulo `String`;
-* compatíveis com operações de concatenação e interpolação elegantes.
+- **imutáveis** (como todos os tipos de dados na linguagem);
+- **UTF-8 nativas**;
+- manipuladas com facilidade usando o módulo `String`;
+- compatíveis com operações de concatenação e interpolação elegantes.
 
 A partir desse ponto, o curso segue para **tipos compostos**, como listas, que permitem trabalhar com coleções de valores.
 
