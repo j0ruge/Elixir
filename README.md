@@ -35,6 +35,11 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Pipe Operator](#pipe-operator)
     - [Como funciona](#como-funciona)
     - [Benefícios](#benefícios)
+  - [Chamadas de Funções Implícitas vs Explícitas](#chamadas-de-funções-implícitas-vs-explícitas)
+    - [Forma Explícita](#forma-explícita)
+    - [Forma Implícita](#forma-implícita)
+    - [Comparação](#comparação)
+    - [Conclusão](#conclusão-2)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -420,6 +425,91 @@ handle_file(File.read("reports/#{filename}"))
 - **Legibilidade:** o fluxo de dados segue uma direção clara.
 - **Menos parênteses:** facilita entender a ordem de execução.
 - **Padronização:** muito usado em pipelines de dados (por exemplo, processamento de arquivos, requisições HTTP, e manipulação de coleções).
+
+---
+
+Aqui está um tópico completo e bem estruturado para o teu **README.md**, comparando e explicando as chamadas de funções **implícitas** e **explícitas** em Elixir:
+
+---
+
+## Chamadas de Funções Implícitas vs Explícitas
+
+Em Elixir, há duas formas de passar funções como argumento para outras funções de ordem superior (como `Enum.map/2`, `Enum.filter/2`, etc.): a **forma explícita**, usando funções anônimas (`fn -> end`), e a **forma implícita**, usando a notação simplificada `&`.
+
+Essas duas abordagens são equivalentes em funcionalidade, mas diferem em **legibilidade**, **estilo** e **intenção**.
+
+### Forma Explícita
+
+Na forma explícita, criamos uma **função anônima** usando a sintaxe `fn ... -> ... end`.
+Isso é útil quando a função tem mais de uma expressão, ou quando queremos deixar o fluxo de execução mais claro.
+
+```elixir
+defmodule ReportsGenerator do
+  def build(filename) do
+    "reports/#{filename}"
+    |> File.stream!()
+    |> Enum.map(fn line -> parse_line(line) end)
+  end
+
+  defp parse_line(line) do
+    line
+    |> String.trim()
+    |> String.split(",")
+    |> List.update_at(2, fn elem -> String.to_integer(elem) end)
+  end
+end
+```
+
+Essa forma é **explícita**, pois definimos claramente a função anônima que será passada para `Enum.map/2` e para `List.update_at/3`.
+Ela deixa evidente onde começa e termina a função que será aplicada a cada elemento.
+
+---
+
+### Forma Implícita
+
+Na forma implícita, usamos o **operador `&`** (chamado de *capture operator*), que permite criar funções de forma concisa.
+
+```elixir
+defmodule ReportsGenerator do
+  def build(filename) do
+    "reports/#{filename}"
+    |> File.stream!()
+    |> Enum.map(&parse_line(&1))
+  end
+
+  defp parse_line(line) do
+    line
+    |> String.trim()
+    |> String.split(",")
+    |> List.update_at(2, &String.to_integer/1)
+  end
+end
+```
+
+Aqui, `&parse_line(&1)` é uma forma curta de escrever `fn line -> parse_line(line) end`.
+Da mesma forma, `&String.to_integer/1` captura a função `String.to_integer/1` e a passa diretamente, sem precisar declarar uma função anônima intermediária.
+
+Essa sintaxe é **mais enxuta** e idiomática em Elixir, sendo recomendada quando a intenção da função é simples e direta.
+
+---
+
+### Comparação
+
+| Aspecto             | Forma Explícita                                                       | Forma Implícita                                       |
+| ------------------- | --------------------------------------------------------------------- | ----------------------------------------------------- |
+| **Sintaxe**         | `fn x -> função(x) end`                                               | `&função(&1)`                                         |
+| **Legibilidade**    | Mais clara para quem vem de linguagens imperativas                    | Mais concisa e idiomática para quem já domina Elixir  |
+| **Uso recomendado** | Quando há múltiplas operações ou lógica mais extensa dentro da função | Quando é uma chamada simples, geralmente de uma linha |
+| **Performance**     | Igual em tempo de execução                                            | Igual em tempo de execução                            |
+
+---
+
+### Conclusão
+
+Ambas as formas são válidas — o importante é **usar a que torna o código mais legível** dentro do contexto.
+Em código de produção, a forma implícita costuma ser preferida por sua concisão, especialmente em pipelines (`|>`), onde a clareza do fluxo é mais importante do que a estrutura da função em si.
+
+> 💡 **Dica:** se a função anônima começa a ficar muito complexa, prefira a forma explícita ou extraia a lógica para uma função nomeada.
 
 ---
 
