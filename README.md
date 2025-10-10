@@ -32,6 +32,9 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
     - [Credo](#credo)
       - [Instalação](#instalação)
   - [Extensões para VSCode](#extensões-para-vscode)
+  - [Pipe Operator](#pipe-operator)
+    - [Como funciona](#como-funciona)
+    - [Benefícios](#benefícios)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -357,6 +360,68 @@ A lib credo é uma ferramenta de análise estática para Elixir que ajuda a mant
 
 - ElixirLS: Language Server para Elixir, oferecendo funcionalidades como autocompletar, linting, formatação e depuração.
 - ElixirLint: Integração do Credo diretamente no VSCode, mostrando problemas de estilo e sugestões enquanto você digita. *Lembre-se de configurar a opção `elixirLinter.useStrict` para `true` nas configurações do VSCode para uma análise mais rigorosa.*
+
+Perfeito — aqui está uma versão pronta e formatada para o teu **README.md**, no mesmo estilo didático que tu tens usado nos outros tópicos:
+
+---
+
+## Pipe Operator
+
+O **operador pipe (`|>`)** é uma das construções mais elegantes e poderosas do Elixir.
+Ele permite **encadear funções de forma legível**, passando automaticamente o resultado de uma expressão como **primeiro argumento** da próxima função.
+
+No exemplo abaixo, o módulo `ReportsGenerator` utiliza o operador pipe para processar um arquivo de forma sequencial e clara:
+
+```elixir
+defmodule ReportsGenerator do
+  def build(filename) do
+    "reports/#{filename}"
+    |> File.read()
+    |> handle_file()
+  end
+
+  defp handle_file({:ok, file_content}), do: file_content
+  defp handle_file({:error, _reason}), do: "❌ Error while opening file!"
+end
+```
+
+Sem o pipe, o código acima ficaria assim:
+
+```elixir
+def build(filename) do
+  handle_file(File.read("reports/#{filename}"))
+end
+```
+
+O pipe simplesmente **remove a necessidade de aninhar chamadas de função**, tornando o fluxo de leitura mais natural — de cima para baixo, da esquerda para a direita.
+
+### Como funciona
+
+A expressão:
+
+```elixir
+"reports/#{filename}"
+|> File.read()
+|> handle_file()
+```
+
+é equivalente a:
+
+```elixir
+handle_file(File.read("reports/#{filename}"))
+```
+
+1. A string `"reports/#{filename}"` é passada como argumento para `File.read/1`.
+2. O resultado de `File.read/1`, que pode ser `{:ok, conteúdo}` ou `{:error, motivo}`, é passado para `handle_file/1`.
+3. A função `handle_file/1` decide o que fazer conforme o resultado.
+
+### Benefícios
+
+- **Legibilidade:** o fluxo de dados segue uma direção clara.
+- **Menos parênteses:** facilita entender a ordem de execução.
+- **Padronização:** muito usado em pipelines de dados (por exemplo, processamento de arquivos, requisições HTTP, e manipulação de coleções).
+
+---
 
 ## Objetivo
 
