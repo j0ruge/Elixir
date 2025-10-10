@@ -1,6 +1,6 @@
 defmodule Recursion do
-  # checkIsTenOrMore
-  def checkIsTenOrMore(value) do
+  # check_is_ten_or_more
+  def check_is_ten_or_more(value) do
     if value >= 10 do
       value
     else
@@ -10,17 +10,17 @@ defmodule Recursion do
         IO.puts(value)
       end
 
-      checkIsTenOrMore(value)
+      check_is_ten_or_more(value)
     end
   end
 
-  # SumList
-  def sumList(list), do: execSum(list, 0)
+  # sum_list
+  def sum_list(list), do: exec_sum(list, 0)
 
-  defp execSum([], acc), do: acc
+  defp exec_sum([], acc), do: acc
 
-  defp execSum([head | tail], acc) do
+  defp exec_sum([head | tail], acc) do
     acc = acc + head
-    execSum(tail, acc)
+    exec_sum(tail, acc)
   end
 end

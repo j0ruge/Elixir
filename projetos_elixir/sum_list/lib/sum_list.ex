@@ -27,6 +27,12 @@ defmodule SumList do
   """
   def call(list), do: sum(list, 0)
 
+  def call_enum_sum(list), do: Enum.sum(list)
+  def call_enum_max(list), do: Enum.max(list)
+  def call_enum_min(list), do: Enum.min(list)
+  def call_enum_increment(list), do: Enum.map(list, fn elem -> elem + 1 end)
+  def call_enum_more_than_five(list), do: Enum.any?(list, fn elem -> elem > 5 end)
+
   defp sum([], acc), do: acc
 
   defp sum([head | tail], acc) do
