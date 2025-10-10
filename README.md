@@ -5,6 +5,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
 - [Estudos em Elixir](#estudos-em-elixir)
   - [Sobre Elixir](#sobre-elixir)
   - [Como criar um novo projeto Elixir](#como-criar-um-novo-projeto-elixir)
+  - [Adicionando uma lib externa](#adicionando-uma-lib-externa)
   - [Como executar exemplos](#como-executar-exemplos)
   - [Como importar um arquivo no IEx](#como-importar-um-arquivo-no-iex)
   - [Como inspecionar um elemento em Elixir](#como-inspecionar-um-elemento-em-elixir)
@@ -27,6 +28,10 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
   - [Bom e velho if/else](#bom-e-velho-ifelse)
   - [Controle de Fluxo](#controle-de-fluxo)
     - [Recursividade](#recursividade)
+  - [Libs](#libs)
+    - [Credo](#credo)
+      - [Instalação](#instalação)
+  - [Extensões para VSCode](#extensões-para-vscode)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -50,6 +55,29 @@ Para criar um novo projeto Elixir, você pode usar a ferramenta de linha de coma
    ```sh
    mix new meu_projeto
    ```
+
+## Adicionando uma lib externa
+
+Para adicionar uma biblioteca externa ao seu projeto Elixir, você precisa editar o arquivo `mix.exs` localizado na raiz do seu projeto. Siga os passos abaixo:
+
+1. **Abra o arquivo `mix.exs`:** Use um editor de texto ou IDE para abrir o arquivo.
+2. **Adicione a dependência:** No bloco `defp deps do`, adicione a dependência desejada. Por exemplo, para adicionar a biblioteca `httpoison`, você faria o seguinte:
+
+   ```elixir
+   defp deps do
+     [
+       {:httpoison, "~> 1.8"}
+     ]
+   end
+   ```
+
+Você pode pedir para baixar as dependências com o comando:
+
+```sh
+mix deps.get
+```
+
+---
 
 ## Como executar exemplos
 
@@ -312,6 +340,23 @@ Em resumo, a recursividade em Elixir substitui os loops tradicionais, explorando
 - **Tail recursion** para eficiência na execução.
 
 A prática constante é fundamental para se acostumar com essa abordagem funcional de controle de fluxo.
+
+## Libs
+
+### Credo
+
+A lib credo é uma ferramenta de análise estática para Elixir que ajuda a manter a qualidade do código, identificando problemas de estilo, complexidade e possíveis bugs.
+
+#### Instalação
+
+1. Adicione `{:credo, "~> 1.5", only: [:dev, :test], runtime: false}` na função `deps` do arquivo `mix.exs`.
+2. Execute `mix deps.get` para baixar a dependência.
+3. Execute `mix credo gen.config` para gerar o arquivo de configuração `.credo.exs`.
+
+## Extensões para VSCode
+
+- ElixirLS: Language Server para Elixir, oferecendo funcionalidades como autocompletar, linting, formatação e depuração.
+- ElixirLint: Integração do Credo diretamente no VSCode, mostrando problemas de estilo e sugestões enquanto você digita. *Lembre-se de configurar a opção `elixirLinter.useStrict` para `true` nas configurações do VSCode para uma análise mais rigorosa.*
 
 ## Objetivo
 
