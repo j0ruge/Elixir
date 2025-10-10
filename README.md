@@ -4,9 +4,10 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
 
 - [Estudos em Elixir](#estudos-em-elixir)
   - [Sobre Elixir](#sobre-elixir)
-  - [Estrutura do Repositório](#estrutura-do-repositório)
+  - [Como criar um novo projeto Elixir](#como-criar-um-novo-projeto-elixir)
   - [Como executar exemplos](#como-executar-exemplos)
   - [Como importar um arquivo no IEx](#como-importar-um-arquivo-no-iex)
+  - [Como inspecionar um elemento em Elixir](#como-inspecionar-um-elemento-em-elixir)
   - [Tipos de Dados](#tipos-de-dados)
     - [Strings](#strings)
       - [Concatenação e interpolação](#concatenação-e-interpolação)
@@ -39,12 +40,16 @@ Principais características:
 - **Escalabilidade:** Projetada para aplicações que exigem alta performance e disponibilidade.
 - **Sintaxe moderna:** Inspirada em Ruby, tornando o código mais legível.
 
-## Estrutura do Repositório
+## Como criar um novo projeto Elixir
 
-- [`math.exs`](math.exs): Exemplo de módulo com função de soma.
-- [`teste.exs`](teste.exs): Demonstra importação, alias e sobrescrita de funções.
-- `03-Mais Tipos/`: Vídeos sobre tipos de dados em Elixir.
-- `04-Modulos/`: Vídeos sobre módulos e aliases.
+Para criar um novo projeto Elixir, você pode usar a ferramenta de linha de comando `mix`, que é o gerenciador de projetos e build tool do Elixir. Siga os passos abaixo:
+
+1. **Instale o Elixir:** Certifique-se de ter o Elixir instalado em sua máquina. Você pode verificar isso executando `elixir -v` no terminal.
+2. **Crie um novo projeto:** Use o comando `mix new nome_do_projeto` para criar um novo projeto. Substitua `nome_do_projeto` pelo nome desejado para o seu projeto.
+
+   ```sh
+   mix new meu_projeto
+   ```
 
 ## Como executar exemplos
 
@@ -65,6 +70,12 @@ elixir teste.exs
 Importar um arquivo no IEx (*Interactive Elixir*) permite que você utilize as funções e módulos definidos nesse arquivo durante a sessão interativa. Para carregar um arquivo, use o comando `c("nome_do_arquivo.exs")`.
 
 Ainda pode se usar `import_file("nome_do_arquivo.exs")` para importar o arquivo.
+
+---
+
+## Como inspecionar um elemento em Elixir
+
+Use `IO.inspect/1` para imprimir o valor de uma variável ou expressão no console, útil para depuração.
 
 ---
 
@@ -169,8 +180,8 @@ Essas operações retornam **novas listas**, não alteram a original — por iss
 
 #### Cabeça e cauda
 
-* `hd(lista)` retorna o **primeiro elemento** (head).
-* `tl(lista)` retorna o **restante da lista** (tail).
+- `hd(lista)` retorna o **primeiro elemento** (head).
+- `tl(lista)` retorna o **restante da lista** (tail).
 
 Exemplo:
 
@@ -285,6 +296,7 @@ Diferente das linguagens imperativas, Elixir **não possui loops tradicionais** 
 No exemplo apresentado, foi criada uma função `tabuada/1` que, ao receber um número, chama outra versão da função (`tabuada/2`) responsável por multiplicar esse número por valores de 1 a 10. Quando o segundo parâmetro chega a 11, a recursão é interrompida com `def tabuada(_, 11), do: nil`.
 
 Esse comportamento é controlado por **pattern matching**, que direciona cada chamada para a versão correta da função, eliminando a necessidade de condicionais explícitas como `if` ou `while`. Assim, temos funções específicas para:
+
 - iniciar o processo (`tabuada/1`),
 - processar a multiplicação (`tabuada/2`),
 - e encerrar a recursão (`tabuada(_, 11)`).
@@ -294,12 +306,12 @@ O instrutor também propõe um desafio: **fazer a função retornar uma lista** 
 Por fim, foi introduzido o conceito de **tail recursion** (*recursão de cauda*), uma otimização do Elixir (herdada da Erlang) que evita o estouro da pilha quando a **última operação** de uma função é a chamada recursiva. Nesse caso, o compilador otimiza a execução como se fosse um loop interno, tornando o processo mais eficiente.
 
 Em resumo, a recursividade em Elixir substitui os loops tradicionais, explorando:
+
 - **Pattern matching** para definir condições de parada;
 - **Imutabilidade** para garantir segurança e previsibilidade;
 - **Tail recursion** para eficiência na execução.
 
 A prática constante é fundamental para se acostumar com essa abordagem funcional de controle de fluxo.
-
 
 ## Objetivo
 
