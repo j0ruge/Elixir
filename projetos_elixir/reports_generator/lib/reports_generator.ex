@@ -41,7 +41,7 @@ defmodule ReportsGenerator do
     |> Map.put("users", users)
     |> Map.put("foods", foods)
 
-    # %{report | "users" => users, "food" => foods}
+    # %{report | "users" => users, "foods" => foods}
   end
 
   defp report_acc do
