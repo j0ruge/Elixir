@@ -1,17 +1,42 @@
 defmodule ReportsGenerator do
   @moduledoc """
-  Documentation for `ReportsGenerator`.
-  """
+  The `ReportsGenerator` module is responsible for generating and analyzing sales reports
+  from CSV files. It parses the data, aggregates results, and provides utility functions
+  to extract useful insights.
 
-  @doc """
-  Hello world.
+  ## Overview
+
+  Each report is built from a file containing user purchase data. The file is read line by line,
+  where each line represents a record in the format:
+
+      user_id,food_name,price
+
+  The module uses `Enum.reduce/3` to accumulate results into a report map containing two main keys:
+
+    * `"users"` — maps each user ID to the total amount spent.
+    * `"foods"` — maps each food item to the number of times it was purchased.
+
+  ## Public Functions
+
+    * `build/1` — Builds a complete report from a given filename.
+    * `fetch_higher_cost/2` — Fetches the entry (users or foods) with the highest total value.
 
   ## Examples
 
-      iex> ReportsGenerator.hello()
-      :world
+      iex> ReportsGenerator.build("report.csv")
+      %{
+        "users" => %{"1" => 45, "2" => 33, "3" => 20},
+        "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
+      }
+
+      iex> ReportsGenerator.fetch_higher_cost(report, "users")
+      {:ok, {"1", 45}}
+
+      iex> ReportsGenerator.fetch_higher_cost(report, "invalid_key")
+      {:error, "Invalid option"}
 
   """
+
   alias ReportsGenerator.Parser
 
   @available_foods [
