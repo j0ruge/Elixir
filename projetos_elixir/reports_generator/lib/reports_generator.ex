@@ -1,39 +1,28 @@
 defmodule ReportsGenerator do
   @moduledoc """
-  The `ReportsGenerator` module is responsible for generating and analyzing sales reports
-  from CSV files. It parses the data, aggregates results, and provides utility functions
-  to extract useful insights.
+  O módulo `ReportsGenerator` é responsável por gerar relatórios a partir
+  de arquivos CSV contendo dados de pedidos de comida.
 
-  ## Overview
+  Ele analisa os arquivos usando o `ReportsGenerator.Parser`, soma os valores
+  gastos por cada usuário e contabiliza a quantidade de vezes que cada alimento
+  foi pedido.
 
-  Each report is built from a file containing user purchase data. The file is read line by line,
-  where each line represents a record in the format:
+  ## Funcionalidades principais
 
-      user_id,food_name,price
+    * `build/1` – lê e processa o arquivo informado, retornando um mapa com
+      totais de gastos por usuário e contagem de alimentos.
+    * `fetch_higher_cost/2` – recebe um relatório gerado e retorna a chave e
+      valor com maior total, seja de um usuário ou de um alimento.
 
-  The module uses `Enum.reduce/3` to accumulate results into a report map containing two main keys:
+  ## Exemplo completo
 
-    * `"users"` — maps each user ID to the total amount spent.
-    * `"foods"` — maps each food item to the number of times it was purchased.
-
-  ## Public Functions
-
-    * `build/1` — Builds a complete report from a given filename.
-    * `fetch_higher_cost/2` — Fetches the entry (users or foods) with the highest total value.
-
-  ## Examples
-
-      iex> ReportsGenerator.build("report.csv")
-      %{
-        "users" => %{"1" => 45, "2" => 33, "3" => 20},
-        "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
-      }
-
-      iex> ReportsGenerator.fetch_higher_cost(report, "users")
-      {:ok, {"1", 45}}
-
-      iex> ReportsGenerator.fetch_higher_cost(report, "invalid_key")
-      {:error, "Invalid option"}
+      iex> alias ReportsGenerator.Parser
+      iex> File.write!("reports/test.csv", "1,pizza,30\\n2,açaí,20\\n1,pizza,25\\n")
+      iex> report = ReportsGenerator.build("test.csv")
+      iex> report["users"]["1"]
+      55
+      iex> report["foods"]["pizza"]
+      2
   """
 
   alias ReportsGenerator.Parser
@@ -52,39 +41,26 @@ defmodule ReportsGenerator do
   @options ["users", "foods"]
 
   @doc """
-  Builds a complete report from a CSV file.
+  Lê o arquivo CSV indicado e gera um relatório com a soma de gastos por usuário
+  e a contagem de alimentos consumidos.
 
-  This function takes a filename, reads its contents using `ReportsGenerator.Parser.parse_file/1`,
-  and aggregates all data into a single report map using `Enum.reduce/3`.
+  ## Exemplos
 
-  Each line in the CSV file must follow the structure:
-
-      user_id,food_name,price
-
-  The resulting report contains two sections:
-
-    * `"users"` — Maps each user ID to the total amount spent.
-    * `"foods"` — Maps each food name to the number of times it was purchased.
-
-  ## Parameters
-
-    * `filename` — The name of the file (e.g., `"report.csv"`), located in the `reports/` folder.
-
-  ## Returns
-
-    A map in the following format:
-
-        %{
-          "users" => %{"1" => 45, "2" => 33, "3" => 20},
-          "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
-        }
-
-  ## Examples
-
-      iex> ReportsGenerator.build("report.csv")
+      iex> File.write!("reports/sample.csv", "1,pizza,30\\n2,sushi,40\\n1,pizza,20\\n")
+      iex> ReportsGenerator.build("sample.csv")
       %{
-        "users" => %{"1" => 45, "2" => 33, "3" => 20},
-        "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
+        "foods" => %{
+          "açaí" => 0, "churrasco" => 0, "esfirra" => 0,
+          "hambúrguer" => 0, "pastel" => 0, "pizza" => 2,
+          "prato_feito" => 0, "sushi" => 1
+        },
+        "users" => %{
+          "1" => 50, "2" => 40, "3" => 0, "4" => 0, "5" => 0, "6" => 0,
+          "7" => 0, "8" => 0, "9" => 0, "10" => 0, "11" => 0, "12" => 0,
+          "13" => 0, "14" => 0, "15" => 0, "16" => 0, "17" => 0, "18" => 0,
+          "19" => 0, "20" => 0, "21" => 0, "22" => 0, "23" => 0, "24" => 0,
+          "25" => 0, "26" => 0, "27" => 0, "28" => 0, "29" => 0, "30" => 0
+        }
       }
   """
   def build(filename) do
@@ -94,43 +70,41 @@ defmodule ReportsGenerator do
   end
 
   @doc """
-  Fetches the entry with the highest total value for the given report section.
+  Retorna o item com o maior valor total no relatório gerado, de acordo
+  com a opção informada.
 
-  This function inspects one of the report sections — `"users"` or `"foods"` —
-  and returns the entry with the highest aggregated value.
+  A opção pode ser `"users"` (para maiores gastos) ou `"foods"` (para alimentos mais pedidos).
 
-  * For `"users"`, it returns the user who spent the most.
-  * For `"foods"`, it returns the most frequently purchased item.
+  ## Exemplos
 
-  ## Parameters
-
-    * `report` — The report map generated by `build/1`.
-    * `option` — Either `"users"` or `"foods"`.
-
-  ## Returns
-
-    * `{:ok, {key, value}}` — When a valid option is provided.
-    * `{:error, "Invalid option"}` — When an invalid option is passed.
-
-  ## Examples
-
+      iex> report = %{
+      ...>   "users" => %{"1" => 45, "2" => 33, "3" => 20},
+      ...>   "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
+      ...> }
       iex> ReportsGenerator.fetch_higher_cost(report, "users")
       {:ok, {"1", 45}}
 
+      iex> report = %{
+      ...>   "users" => %{"1" => 45, "2" => 33, "3" => 20},
+      ...>   "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
+      ...> }
       iex> ReportsGenerator.fetch_higher_cost(report, "foods")
       {:ok, {"pizza", 4}}
 
+      iex> report = %{
+      ...>   "users" => %{"1" => 45, "2" => 33, "3" => 20},
+      ...>   "foods" => %{"pizza" => 4, "hambúrguer" => 2, "açaí" => 1}
+      ...> }
       iex> ReportsGenerator.fetch_higher_cost(report, "invalid")
       {:error, "Invalid option"}
   """
+
   def fetch_higher_cost(report, option) when option in @options do
     {:ok, Enum.max_by(report[option], fn {_key, value} -> value end)}
   end
 
   def fetch_higher_cost(_report, _option), do: {:error, "Invalid option"}
 
-  @doc false
-  # Private helper: updates the accumulated report with data from each parsed line.
   defp sum_values([id, food_name, price], %{"foods" => foods, "users" => users} = report) do
     users = Map.put(users, id, users[id] + price)
     foods = Map.put(foods, food_name, foods[food_name] + 1)
@@ -139,11 +113,9 @@ defmodule ReportsGenerator do
     |> Map.put("users", users)
     |> Map.put("foods", foods)
 
-    # %{report | "users" => users, "foods" => foods}
+    # Outra opção de fazer o map é %{report | "users" => users, "foods" => foods}
   end
 
-  @doc false
-  # Private helper: initializes the report accumulator with zeroed data for all foods and users.
   defp report_acc do
     foods = Enum.into(@available_foods, %{}, &{&1, 0})
     users = Enum.into(1..30, %{}, &{Integer.to_string(&1), 0})

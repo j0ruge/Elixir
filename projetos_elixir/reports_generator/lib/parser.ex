@@ -25,10 +25,18 @@ defmodule ReportsGenerator.Parser do
 
   ## Examples
 
-      iex> ReportsGenerator.Parser.parse_file("report.csv") |> Enum.take(2)
+      iex> ReportsGenerator.Parser.parse_file("report_test.csv") |> Enum.take(10)
       [
-        ["1", "pizza", 20],
-        ["2", "açaí", 15]
+        ["1", "pizza", 48],
+        ["2", "açaí", 45],
+        ["3", "hambúrguer", 31],
+        ["4", "esfirra", 42],
+        ["5", "hambúrguer", 49],
+        ["6", "esfirra", 18],
+        ["7", "pizza", 27],
+        ["8", "esfirra", 25],
+        ["9", "churrasco", 24],
+        ["10", "churrasco", 36]
       ]
   """
 
@@ -41,7 +49,7 @@ defmodule ReportsGenerator.Parser do
 
   ## Parameters
 
-    * `filename` — The name of the file to parse (e.g., `"report.csv"`), located in the `reports/` directory.
+    * `filename` — The name of the file to parse (e.g., `"report_test.csv"`), located in the `reports/` directory.
 
   ## Returns
 
@@ -50,10 +58,18 @@ defmodule ReportsGenerator.Parser do
 
   ## Examples
 
-      iex> ReportsGenerator.Parser.parse_file("report.csv") |> Enum.to_list()
+      iex> ReportsGenerator.Parser.parse_file("report_test.csv") |> Enum.to_list()
       [
-        ["1", "pizza", 20],
-        ["2", "hambúrguer", 15]
+        ["1", "pizza", 48],
+        ["2", "açaí", 45],
+        ["3", "hambúrguer", 31],
+        ["4", "esfirra", 42],
+        ["5", "hambúrguer", 49],
+        ["6", "esfirra", 18],
+        ["7", "pizza", 27],
+        ["8", "esfirra", 25],
+        ["9", "churrasco", 24],
+        ["10", "churrasco", 36]
       ]
   """
   def parse_file(filename) do
