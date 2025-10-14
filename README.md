@@ -69,7 +69,7 @@ Principais características:
 
 Para criar um novo projeto Elixir, você pode usar a ferramenta de linha de comando `mix`, que é o gerenciador de projetos e build tool do Elixir. Siga os passos abaixo:
 
-1. **Instale o Elixir:** Certifique-se de ter o Elixir instalado em sua máquina. Você pode verificar isso executando `elixir -v` no terminal.
+1. **[Instale o Elixir](https://elixir-lang.org/install.html):** Certifique-se de ter o Elixir instalado em sua máquina. Você pode verificar isso executando `elixir -v` no terminal.
 2. **Crie um novo projeto:** Use o comando `mix new nome_do_projeto` para criar um novo projeto. Substitua `nome_do_projeto` pelo nome desejado para o seu projeto.
 
    ```sh
