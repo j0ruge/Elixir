@@ -21,6 +21,8 @@ defmodule FileHelper do
     File.stream!(path)
     |> Stream.map(&String.replace(&1, "\n", ""))
     |> Enum.into([], fn line -> {String.length(line), line} end)
+    |> Enum.max()
+    |> then(fn {_, line} -> line end)
   end
 
   defp index_file_stream_lines(path) do
