@@ -1,6 +1,0 @@
-defmodule TodoList do
-  defstruct auto_id: 1, entries: Map.new
-  
-  def new, do: %%
-
-end
