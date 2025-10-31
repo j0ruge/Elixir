@@ -65,6 +65,15 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
     - [Ordem de avaliação](#ordem-de-avaliação)
     - [Resumo](#resumo)
     - [Exemplos de uso](#exemplos-de-uso)
+  - [Convenções de nome](#convenções-de-nome)
+    - [Casing — uso de maiúsculas e minúsculas](#casing--uso-de-maiúsculas-e-minúsculas)
+    - [Uso do underscore (`_`)](#uso-do-underscore-_)
+    - [Pontuação em nomes de funções](#pontuação-em-nomes-de-funções)
+      - [Funções terminadas com `!`](#funções-terminadas-com-)
+      - [Funções terminadas com `?`](#funções-terminadas-com--1)
+    - [`is_` vs `?` em funções booleanas](#is_-vs--em-funções-booleanas)
+    - [`size` vs `length`](#size-vs-length)
+    - [Resumo das principais convenções](#resumo-das-principais-convenções)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -798,6 +807,135 @@ No exemplo acima, a cláusula com a guarda `is_nil(string_b)` vem **antes** da c
 | `Module.Concat.join("Olá")`               | `"Olá"`       | Retorna a própria string (sem `string_b`) |
 | `Module.Concat.join("Olá", "Mundo")`      | `"Olá Mundo"` | Usa o separador padrão (`" "`)            |
 | `Module.Concat.join("Olá", "Mundo", "_")` | `"Olá_Mundo"` | Usa o separador informado (`"_"`)         |
+
+Aqui está o texto revisado e formatado em **markdown**, pronto para o teu `README.md` de estudos sobre **Elixir**, com foco em clareza, fluidez e fidelidade à transcrição original.
+
+---
+
+## Convenções de nome
+
+O Elixir segue uma série de **convenções de nomenclatura** (naming conventions) que tornam o código mais legível, previsível e consistente entre diferentes projetos e desenvolvedores. Essas convenções não são obrigatórias, mas são amplamente utilizadas e incentivadas pela comunidade.
+
+A documentação oficial sobre o tema está disponível em:
+🔗 [Naming Conventions — Elixir](https://hexdocs.pm/elixir/1.12.3/naming-conventions.html)
+
+---
+
+### Casing — uso de maiúsculas e minúsculas
+
+- **Funções e variáveis** devem ser nomeadas em **snake_case**, ou seja, palavras em minúsculas separadas por *underscore* (`_`).
+  Exemplo: `soma_valores`, `total_usuarios`.
+
+- **Módulos** seguem a convenção **CamelCase**, com a primeira letra de cada palavra em maiúscula.
+  Exemplo: `MeuModulo.Math`.
+
+Na prática, o módulo `MeuModulo.Math` pode estar em um arquivo chamado `meu_modulo_math.ex`.
+O nome do arquivo deve seguir **snake_case**, enquanto o nome do módulo segue **CamelCase**.
+
+---
+
+### Uso do underscore (`_`)
+
+O underscore tem usos específicos e importantes:
+
+1. **Ignorar valores** — quando um parâmetro ou variável não será utilizado, prefixa-se com `_`.
+   Exemplo:
+
+   ```elixir
+   def soma(a, _b), do: a
+   ```
+
+   Isso evita avisos do compilador sobre variáveis não utilizadas.
+
+2. **Funções privadas não importáveis** — funções que começam com `_` não são importadas automaticamente quando o módulo é usado em outro arquivo.
+   Exemplo:
+
+   ```elixir
+   defmodule Example do
+     def _hidden_function, do: :ok
+   end
+   ```
+
+   Mesmo que `Example` seja importado, `_hidden_function` só pode ser chamada explicitamente (`Example._hidden_function/0`).
+
+---
+
+### Pontuação em nomes de funções
+
+Elixir permite o uso de **!** e **?** no final dos nomes de função, com significados convencionais importantes:
+
+#### Funções terminadas com `!`
+
+Indicam que podem **lançar erros** (exceções), ao invés de apenas retornar tuplas de resultado.
+
+Exemplo:
+
+```elixir
+File.read("arquivo.txt")   # => {:ok, "conteúdo"} ou {:error, :enoent}
+File.read!("arquivo.txt")  # => "conteúdo" ou levanta erro se falhar
+```
+
+Use a versão sem `!` quando quiser **tratar erros manualmente**, e a versão com `!` quando quiser **falhar imediatamente** caso algo dê errado.
+
+#### Funções terminadas com `?`
+
+Indicam que retornam **valores booleanos** (`true` ou `false`).
+
+Exemplo:
+
+```elixir
+Enum.empty?([])
+# => true
+```
+
+---
+
+### `is_` vs `?` em funções booleanas
+
+Há duas convenções principais para funções que retornam valores booleanos:
+
+- **Funções nativas** da linguagem geralmente começam com `is_` (ex.: `is_integer/1`, `is_nil/1`) e podem ser usadas em **cláusulas de guarda** (`when`).
+- **Funções definidas por nós** geralmente terminam com `?` (ex.: `ativo?`, `zero?`), pois **não podem ser usadas** em guard clauses.
+
+Exemplo:
+
+```elixir
+def zero?(0), do: true
+def zero?(_), do: false
+```
+
+---
+
+### `size` vs `length`
+
+Essas palavras têm significados distintos e refletem diferenças de desempenho:
+
+- `size` → operação **constante** (O(1)), pois o tamanho já é armazenado na estrutura.
+  Exemplo: `tuple_size/1`, `map_size/1`.
+
+- `length` → operação **linear** (O(n)), pois precisa percorrer todos os elementos.
+  Exemplo: `length/1` em listas e strings.
+
+```elixir
+tuple_size({1, 2, 3})  # rápido, tempo constante
+length([1, 2, 3])      # percorre a lista inteira
+```
+
+Saber essa diferença ajuda a entender o impacto de performance das suas escolhas.
+
+---
+
+### Resumo das principais convenções
+
+| Elemento                 | Convenção        | Exemplo             | Observação                               |
+| ------------------------ | ---------------- | ------------------- | ---------------------------------------- |
+| **Módulos**              | `CamelCase`      | `MeuModulo.Exemplo` | Primeira letra de cada palavra maiúscula |
+| **Funções e variáveis**  | `snake_case`     | `soma_valores`      | Sempre minúsculas                        |
+| **Ignorar parâmetro**    | Prefixar com `_` | `_valor`            | Evita avisos                             |
+| **Função booleana**      | Terminar com `?` | `ativo?`            | Retorna `true` ou `false`                |
+| **Função perigosa**      | Terminar com `!` | `File.read!`        | Pode lançar erro                         |
+| **Constante de tamanho** | `size`           | `map_size(map)`     | Tempo constante                          |
+| **Comprimento**          | `length`         | `length(lista)`     | Tempo linear                             |
 
 ---
 

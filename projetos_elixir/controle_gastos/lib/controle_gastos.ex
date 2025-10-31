@@ -1,5 +1,6 @@
 defmodule ControleGastos do
   def parse_file(path \\ "gastos.csv")
+
   @moduledoc """
   Documentation for `ControleGastos`.
   """
@@ -14,7 +15,17 @@ defmodule ControleGastos do
 
   """
   def parse_file(path) do
-    File.read(path)
-    |> Stream.map(fn(line) -> line end)
+    path
+    |> File.stream!()
+    |> Stream.map(fn line -> parse_line(line) end)
+  end
+
+  @doc false
+  # Private helper: Cleans a CSV line, splits by comma, and converts the price field to number.
+  defp parse_line(line) do
+    line
+    |> String.trim()
+    |> String.split(",")
+    |> List.update_at(1, &String.to_float/1)
   end
 end
