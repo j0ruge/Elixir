@@ -14,6 +14,7 @@ defmodule ControleGastos do
 
   """
   def parse_file(path) do
-    File.stream!(path)
+    File.read(path)
+    |> Stream.map(fn(line) -> line end)
   end
 end
