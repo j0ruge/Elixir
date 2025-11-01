@@ -1,6 +1,6 @@
 defmodule ControleGastos do
-  def parse_file(path \\ "gastos.csv")
-  # def read_file(path \\ "gastos.csv")
+  def parse_file(path \\ "gastos.csv"), do: stream_lines(path)
+  def read_file(path \\ "gastos.csv"), do: stream_lines(path) |> Enum.to_list()
 
   @moduledoc """
   Documentation for `ControleGastos`.
@@ -15,16 +15,22 @@ defmodule ControleGastos do
       :world
 
   """
-  def parse_file(path) do
-    path
-    |> File.stream!()
-    |> Stream.map(fn line -> parse_line(line) end)
-  end
 
-  def read_file(path) do
-    path
-    |> File.stream!()
-    |> Enum.map(fn line -> parse_line(line) end)
+  # def parse_file(path) do
+  #   path
+  #   |> File.stream!()
+  #   |> Stream.map(fn line -> parse_line(line) end)
+  # end
+
+  # def read_file(path) do
+  #   path
+  #   |> File.stream!()
+  #   |> Enum.map(fn line -> parse_line(line) end)
+  # end
+
+  defp stream_lines(path) do
+    File.stream!(path)
+    |> Stream.map(&parse_line/1)
   end
 
   @doc false
