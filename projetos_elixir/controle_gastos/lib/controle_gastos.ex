@@ -20,11 +20,19 @@ defmodule ControleGastos do
     |> Stream.map(fn line -> parse_line(line) end)
   end
 
+  def read_file(path) do
+    path
+    |> File.stream!()
+    |> Enum.map(fn line -> parse_line(line) end)
+  end
+
   @doc false
   # Private helper: Cleans a CSV line, splits by comma, and converts the price field to number.
   defp parse_line(line) do
     line
     |> String.trim()
+    # remove aspas
+    |> String.replace(~r/"([^"]*)"/, "\\1")
     |> String.split(",")
     |> List.update_at(1, &String.to_float/1)
   end
