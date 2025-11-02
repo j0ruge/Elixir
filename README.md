@@ -52,6 +52,28 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
       - [🚀 Exemplo prático com pipeline](#-exemplo-prático-com-pipeline)
       - [🧩 Integração com o código do projeto](#-integração-com-o-código-do-projeto)
     - [🧾 Resumo](#-resumo)
+  - [Guard Clauses](#guard-clauses)
+    - [Exemplo prático](#exemplo-prático)
+    - [Explicação detalhada](#explicação-detalhada)
+    - [O que acontece na prática](#o-que-acontece-na-prática)
+    - [Observações importantes](#observações-importantes)
+    - [Em resumo](#em-resumo)
+  - [Parâmetros padrão](#parâmetros-padrão)
+    - [Exemplo prático](#exemplo-prático-1)
+    - [Explicação](#explicação)
+    - [Cabeçalhos de função e múltiplas cláusulas](#cabeçalhos-de-função-e-múltiplas-cláusulas)
+    - [Ordem de avaliação](#ordem-de-avaliação)
+    - [Resumo](#resumo)
+    - [Exemplos de uso](#exemplos-de-uso)
+  - [Convenções de nome](#convenções-de-nome)
+    - [Casing — uso de maiúsculas e minúsculas](#casing--uso-de-maiúsculas-e-minúsculas)
+    - [Uso do underscore (`_`)](#uso-do-underscore-_)
+    - [Pontuação em nomes de funções](#pontuação-em-nomes-de-funções)
+      - [Funções terminadas com `!`](#funções-terminadas-com-)
+      - [Funções terminadas com `?`](#funções-terminadas-com--1)
+    - [`is_` vs `?` em funções booleanas](#is_-vs--em-funções-booleanas)
+    - [`size` vs `length`](#size-vs-length)
+    - [Resumo das principais convenções](#resumo-das-principais-convenções)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -641,6 +663,279 @@ Assim, cada linha do arquivo vira um item no mapa final, de forma elegante e fun
 | `Enum.into([{:a, 1}], %{})`     | Converte lista de tuplas em mapa     | `%{a: 1}`       | `%{a: 1}`       |
 | `Enum.into(%{x: 9}, [])`        | Converte mapa em lista               | `[x: 9]`        | `[x: 9]`        |
 | `Enum.into([{:y, 8}], %{x: 9})` | Adiciona elementos ao mapa existente | `%{x: 9, y: 8}` | `%{x: 9, y: 8}` |
+
+---
+
+Aqui está uma versão revisada e bem organizada da tua transcrição, já formatada para o **README.md** do teu repositório de estudos em Elixir, com explicação didática e tom de documentação técnica, sem perder o conteúdo original:
+
+---
+
+## Guard Clauses
+
+As *guard clauses* (ou cláusulas de guarda) em Elixir permitem adicionar verificações extras a uma função, além do que o *pattern matching* já oferece. Elas são especialmente úteis quando queremos que uma função só seja executada sob certas condições mais específicas.
+
+### Exemplo prático
+
+O exemplo abaixo mostra a utilização de *guard clauses* dentro de um módulo simples de matemática:
+
+```elixir
+defmodule Module.Math do
+  def somo(parametro1, parametro2), do: parametro1 + parametro2
+
+  def zero?(0), do: true
+  def zero?(x) when is_integer(x), do: false
+end
+```
+
+Nesse módulo, temos duas definições (ou *cláusulas*) para a mesma função `zero?/1`:
+
+1. A primeira corresponde exatamente ao valor `0` — e retorna `true`.
+2. A segunda é executada apenas se o parâmetro for um **inteiro diferente de zero**, retornando `false`.
+
+Se passarmos qualquer valor que **não seja um inteiro**, nenhuma das cláusulas será compatível e o Elixir lançará um erro informando que *nenhuma função candidata foi encontrada*.
+
+### Explicação detalhada
+
+A linha:
+
+```elixir
+def zero?(x) when is_integer(x), do: false
+```
+
+introduz o uso do **`when`**, que adiciona uma condição de guarda à definição da função. Essa condição é avaliada *depois* do *pattern matching*, e só permite a execução da função se for verdadeira.
+
+No caso, o `is_integer(x)` é uma função nativa do Elixir que retorna `true` se o valor for um número inteiro. Assim, `zero?/1` só aceita inteiros como argumento.
+
+### O que acontece na prática
+
+| Entrada                  | Resultado | Explicação                                     |
+| ------------------------ | --------- | ---------------------------------------------- |
+| `Module.Math.zero?(0)`   | `true`    | Casou com a primeira cláusula (`0`)            |
+| `Module.Math.zero?(5)`   | `false`   | Casou com a segunda cláusula (`is_integer(x)`) |
+| `Module.Math.zero?("a")` | **erro**  | Nenhuma cláusula compatível                    |
+
+### Observações importantes
+
+- As *guard clauses* podem usar diversas funções nativas que começam com `is_` (`is_integer/1`, `is_atom/1`, `is_list/1`, etc.).
+- Também podem usar operadores aritméticos e lógicos simples (`+`, `-`, `>`, `<`, `and`, `or`...).
+- Não é possível utilizar funções definidas pelo usuário dentro das *guard clauses*.
+
+### Em resumo
+
+As *guard clauses* permitem criar múltiplas versões da mesma função, cada uma com um comportamento específico baseado não só no formato do parâmetro (*pattern matching*), mas também em suas propriedades lógicas. Isso torna o código mais robusto, claro e seguro.
+
+---
+Aqui está o texto revisado e formatado em **markdown**, pronto para o teu `README.md` de estudos sobre **Elixir**, com título e subtítulos organizados, explicação didática e fiel à transcrição original.
+
+---
+
+## Parâmetros padrão
+
+Em Elixir, podemos definir **valores padrão** para parâmetros de funções. Isso permite que uma função seja chamada com menos argumentos do que o total definido, pois os valores omitidos são substituídos automaticamente pelos padrões configurados.
+
+### Exemplo prático
+
+O exemplo abaixo mostra um módulo que concatena duas strings, podendo receber um separador opcional (por padrão, um espaço em branco) e até mesmo ser chamado com apenas uma string:
+
+```elixir
+defmodule Module.Concat do
+  def join(string_a, string_b \\ nil, separador \\ " ")
+
+  def join(string_a, string_b, _separador) when is_nil(string_b) do
+    string_a
+  end
+
+  def join(string_a, string_b, separador) do
+    string_a <> separador <> string_b
+  end
+end
+```
+
+### Explicação
+
+A função `join/3` concatena duas strings (`string_a` e `string_b`) com um separador entre elas. O **valor padrão** do `separador` é `" "`, então é possível chamar:
+
+```elixir
+Module.Concat.join("Olá", "Mundo")
+# => "Olá Mundo"
+```
+
+Se o separador for informado explicitamente, ele substitui o padrão:
+
+```elixir
+Module.Concat.join("Olá", "Mundo", "_")
+# => "Olá_Mundo"
+```
+
+Além disso, é possível chamar a função com apenas **um parâmetro**, retornando diretamente o valor passado:
+
+```elixir
+Module.Concat.join("Olá")
+# => "Olá"
+```
+
+Isso é possível graças à **cláusula de guarda** `when is_nil(string_b)`, que garante que, quando o segundo parâmetro for `nil`, apenas `string_a` será retornada.
+
+### Cabeçalhos de função e múltiplas cláusulas
+
+Quando uma função possui **múltiplas cláusulas** (várias definições para a mesma função), é comum que o Elixir apresente avisos se os **valores padrão** forem definidos em cada uma delas separadamente.
+Para evitar repetições e melhorar a clareza, o Elixir permite definir **valores padrão apenas no cabeçalho** da função — ou seja, uma definição sem corpo, apenas a assinatura da função com seus padrões.
+
+```elixir
+def join(string_a, string_b \\ nil, separador \\ " ")
+```
+
+Isso indica ao compilador que **todas as cláusulas de `join/3`** compartilham esses mesmos valores padrão. Assim, as definições abaixo não precisam (e nem devem) repeti-los.
+
+### Ordem de avaliação
+
+O Elixir avalia as funções **de cima para baixo**, então a ordem das cláusulas importa.
+No exemplo acima, a cláusula com a guarda `is_nil(string_b)` vem **antes** da cláusula que realiza a concatenação. Isso garante que, se o segundo parâmetro for `nil`, a primeira cláusula será executada imediatamente.
+
+### Resumo
+
+- Valores padrão são definidos com `\\`.
+- Apenas uma das definições deve conter os valores padrão (no cabeçalho).
+- É possível combinar valores padrão com cláusulas de guarda.
+- A ordem das definições importa para o *pattern matching* e para as *guard clauses*.
+- Parâmetros que não são utilizados podem ser prefixados com `_` para evitar avisos do compilador.
+
+### Exemplos de uso
+
+| Chamada                                   | Resultado     | Descrição                                 |
+| ----------------------------------------- | ------------- | ----------------------------------------- |
+| `Module.Concat.join("Olá")`               | `"Olá"`       | Retorna a própria string (sem `string_b`) |
+| `Module.Concat.join("Olá", "Mundo")`      | `"Olá Mundo"` | Usa o separador padrão (`" "`)            |
+| `Module.Concat.join("Olá", "Mundo", "_")` | `"Olá_Mundo"` | Usa o separador informado (`"_"`)         |
+
+Aqui está o texto revisado e formatado em **markdown**, pronto para o teu `README.md` de estudos sobre **Elixir**, com foco em clareza, fluidez e fidelidade à transcrição original.
+
+---
+
+## Convenções de nome
+
+O Elixir segue uma série de **convenções de nomenclatura** (naming conventions) que tornam o código mais legível, previsível e consistente entre diferentes projetos e desenvolvedores. Essas convenções não são obrigatórias, mas são amplamente utilizadas e incentivadas pela comunidade.
+
+A documentação oficial sobre o tema está disponível em:
+🔗 [Naming Conventions — Elixir](https://hexdocs.pm/elixir/1.12.3/naming-conventions.html)
+
+---
+
+### Casing — uso de maiúsculas e minúsculas
+
+- **Funções e variáveis** devem ser nomeadas em **snake_case**, ou seja, palavras em minúsculas separadas por *underscore* (`_`).
+  Exemplo: `soma_valores`, `total_usuarios`.
+
+- **Módulos** seguem a convenção **CamelCase**, com a primeira letra de cada palavra em maiúscula.
+  Exemplo: `MeuModulo.Math`.
+
+Na prática, o módulo `MeuModulo.Math` pode estar em um arquivo chamado `meu_modulo_math.ex`.
+O nome do arquivo deve seguir **snake_case**, enquanto o nome do módulo segue **CamelCase**.
+
+---
+
+### Uso do underscore (`_`)
+
+O underscore tem usos específicos e importantes:
+
+1. **Ignorar valores** — quando um parâmetro ou variável não será utilizado, prefixa-se com `_`.
+   Exemplo:
+
+   ```elixir
+   def soma(a, _b), do: a
+   ```
+
+   Isso evita avisos do compilador sobre variáveis não utilizadas.
+
+2. **Funções privadas não importáveis** — funções que começam com `_` não são importadas automaticamente quando o módulo é usado em outro arquivo.
+   Exemplo:
+
+   ```elixir
+   defmodule Example do
+     def _hidden_function, do: :ok
+   end
+   ```
+
+   Mesmo que `Example` seja importado, `_hidden_function` só pode ser chamada explicitamente (`Example._hidden_function/0`).
+
+---
+
+### Pontuação em nomes de funções
+
+Elixir permite o uso de **!** e **?** no final dos nomes de função, com significados convencionais importantes:
+
+#### Funções terminadas com `!`
+
+Indicam que podem **lançar erros** (exceções), ao invés de apenas retornar tuplas de resultado.
+
+Exemplo:
+
+```elixir
+File.read("arquivo.txt")   # => {:ok, "conteúdo"} ou {:error, :enoent}
+File.read!("arquivo.txt")  # => "conteúdo" ou levanta erro se falhar
+```
+
+Use a versão sem `!` quando quiser **tratar erros manualmente**, e a versão com `!` quando quiser **falhar imediatamente** caso algo dê errado.
+
+#### Funções terminadas com `?`
+
+Indicam que retornam **valores booleanos** (`true` ou `false`).
+
+Exemplo:
+
+```elixir
+Enum.empty?([])
+# => true
+```
+
+---
+
+### `is_` vs `?` em funções booleanas
+
+Há duas convenções principais para funções que retornam valores booleanos:
+
+- **Funções nativas** da linguagem geralmente começam com `is_` (ex.: `is_integer/1`, `is_nil/1`) e podem ser usadas em **cláusulas de guarda** (`when`).
+- **Funções definidas por nós** geralmente terminam com `?` (ex.: `ativo?`, `zero?`), pois **não podem ser usadas** em guard clauses.
+
+Exemplo:
+
+```elixir
+def zero?(0), do: true
+def zero?(_), do: false
+```
+
+---
+
+### `size` vs `length`
+
+Essas palavras têm significados distintos e refletem diferenças de desempenho:
+
+- `size` → operação **constante** (O(1)), pois o tamanho já é armazenado na estrutura.
+  Exemplo: `tuple_size/1`, `map_size/1`.
+
+- `length` → operação **linear** (O(n)), pois precisa percorrer todos os elementos.
+  Exemplo: `length/1` em listas e strings.
+
+```elixir
+tuple_size({1, 2, 3})  # rápido, tempo constante
+length([1, 2, 3])      # percorre a lista inteira
+```
+
+Saber essa diferença ajuda a entender o impacto de performance das suas escolhas.
+
+---
+
+### Resumo das principais convenções
+
+| Elemento                 | Convenção        | Exemplo             | Observação                               |
+| ------------------------ | ---------------- | ------------------- | ---------------------------------------- |
+| **Módulos**              | `CamelCase`      | `MeuModulo.Exemplo` | Primeira letra de cada palavra maiúscula |
+| **Funções e variáveis**  | `snake_case`     | `soma_valores`      | Sempre minúsculas                        |
+| **Ignorar parâmetro**    | Prefixar com `_` | `_valor`            | Evita avisos                             |
+| **Função booleana**      | Terminar com `?` | `ativo?`            | Retorna `true` ou `false`                |
+| **Função perigosa**      | Terminar com `!` | `File.read!`        | Pode lançar erro                         |
+| **Constante de tamanho** | `size`           | `map_size(map)`     | Tempo constante                          |
+| **Comprimento**          | `length`         | `length(lista)`     | Tempo linear                             |
 
 ---
 
