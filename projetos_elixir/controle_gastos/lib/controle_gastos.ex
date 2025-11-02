@@ -5,6 +5,7 @@ defmodule ControleGastos do
   Permite ler, adicionar e salvar registros no formato CSV:
   `"data","valor","método","descrição"`
   """
+
   @default_path "gastos.csv"
 
   # Lê o arquivo como Stream (preguiçoso)
@@ -26,8 +27,27 @@ defmodule ControleGastos do
 
   # Adiciona uma nova linha ao arquivo (append)
   def add_entry(date, value, payment_method, description, path \\ @default_path) do
-    line = format_line({date, value, payment_method, description})
+    entries = list_entries(path)
+
+    new_id =
+      entries
+      |> Enum.map(fn {id, _, _, _, _} -> id end)
+      |> Enum.max(fn -> 0 end)
+      |> Kernel.+(1)
+
+    new_entry = {new_id, date, value, payment_method, description}
+    line = format_line(new_entry)
+
     File.write!(path, line <> "\n", [:append])
+    new_entry
+  end
+
+  def delete_entry(id) do
+    entries =
+      list_entries()
+      |> Enum.reject(fn {entry_id, _, _, _, _} -> entry_id == id end)
+
+    save(entries)
   end
 
   # Salva uma lista de entradas sobrescrevendo o arquivo
@@ -44,6 +64,11 @@ defmodule ControleGastos do
   # Funções auxiliares
   # -------------------
 
+  defp list_entries(path \\ @default_path) do
+    File.stream!(path)
+    |> Enum.map(&parse_line/1)
+  end
+
   defp stream_lines(path) do
     File.stream!(path)
     |> Stream.map(&parse_line/1)
@@ -52,16 +77,16 @@ defmodule ControleGastos do
   @doc false
   # Private helper: Cleans a CSV line, splits by comma, and converts the price field to number.
   defp parse_line(line) do
-    [date, value, payment_method, description] =
+    [id, date, value, payment_method, description] =
       line
       |> String.trim()
       |> String.split(",")
       |> Enum.map(&String.trim(&1, "\""))
 
-    {date, String.to_float(value), payment_method, description}
+    {String.to_integer(id), date, String.to_float(value), payment_method, description}
   end
 
-  defp format_line({date, value, payment_method, description}) do
-    "\"#{date}\",#{value},\"#{payment_method}\",\"#{description}\""
+  defp format_line({id, date, value, payment_method, description}) do
+    "\"#{id}\",\"#{date}\",\"#{value}\",\"#{payment_method}\",\"#{description}\""
   end
 end
