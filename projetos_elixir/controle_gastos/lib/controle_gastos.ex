@@ -12,7 +12,7 @@ defmodule ControleGastos do
 
   @doc """
   Lê um arquivo CSV simples e retorna uma lista de tuplas no formato:
-  `{date, value, method, description}`.
+  `{date, value, payment_method, description}`.
 
   ## Exemplo
 
@@ -25,8 +25,8 @@ defmodule ControleGastos do
   def read_file(path \\ @default_path), do: stream_lines(path) |> Enum.to_list()
 
   # Adiciona uma nova linha ao arquivo (append)
-  def add_entry(date, value, method, description, path \\ @default_path) do
-    line = format_line({date, value, method, description})
+  def add_entry(date, value, payment_method, description, path \\ @default_path) do
+    line = format_line({date, value, payment_method, description})
     File.write!(path, line <> "\n", [:append])
   end
 
@@ -52,16 +52,16 @@ defmodule ControleGastos do
   @doc false
   # Private helper: Cleans a CSV line, splits by comma, and converts the price field to number.
   defp parse_line(line) do
-    [date, value, method, description] =
+    [date, value, payment_method, description] =
       line
       |> String.trim()
       |> String.split(",")
       |> Enum.map(&String.trim(&1, "\""))
 
-    {date, String.to_float(value), method, description}
+    {date, String.to_float(value), payment_method, description}
   end
 
-  defp format_line({date, value, method, description}) do
-    "\"#{date}\",#{value},\"#{method}\",\"#{description}\""
+  defp format_line({date, value, payment_method, description}) do
+    "\"#{date}\",#{value},\"#{payment_method}\",\"#{description}\""
   end
 end
