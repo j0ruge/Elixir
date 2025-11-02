@@ -1,5 +1,14 @@
 defmodule ControleGastos do
-  def parse_file(path \\ "gastos.csv"), do: stream_lines(path)
+  @moduledoc """
+  Módulo simples de controle de gastos.
+
+  Permite ler, adicionar e salvar registros no formato CSV:
+  `"data","valor","método","descrição"`
+  """
+  @default_path "gastos.csv"
+
+  # Lê o arquivo como Stream (preguiçoso)
+  def parse_file(path \\ @default_path), do: stream_lines(path)
 
   @doc """
   Lê um arquivo CSV simples e retorna uma lista de tuplas no formato:
@@ -13,33 +22,27 @@ defmodule ControleGastos do
         {"2025-10-31", 7.6, "rc", "trem"}
       ]
   """
-  def read_file(path \\ "gastos.csv"), do: stream_lines(path) |> Enum.to_list()
+  def read_file(path \\ @default_path), do: stream_lines(path) |> Enum.to_list()
 
-  @moduledoc """
-  Documentation for `ControleGastos`.
-  """
+  # Adiciona uma nova linha ao arquivo (append)
+  def add_entry(date, value, method, description, path \\ @default_path) do
+    line = format_line({date, value, method, description})
+    File.write!(path, line <> "\n", [:append])
+  end
 
-  @doc """
-  Hello world.
+  # Salva uma lista de entradas sobrescrevendo o arquivo
+  def save(entries, path \\ @default_path) do
+    content =
+      entries
+      |> Enum.map(&format_line/1)
+      |> Enum.join("\n")
 
-  ## Examples
+    File.write!(path, content <> "\n")
+  end
 
-      iex> ControleGastos.hello()
-      :world
-
-  """
-
-  # def parse_file(path) do
-  #   path
-  #   |> File.stream!()
-  #   |> Stream.map(fn line -> parse_line(line) end)
-  # end
-
-  # def read_file(path) do
-  #   path
-  #   |> File.stream!()
-  #   |> Enum.map(fn line -> parse_line(line) end)
-  # end
+  # -------------------
+  # Funções auxiliares
+  # -------------------
 
   defp stream_lines(path) do
     File.stream!(path)
@@ -58,11 +61,7 @@ defmodule ControleGastos do
     {date, String.to_float(value), method, description}
   end
 
-  # defp parse_line(line) do
-  #   line
-  #   |> String.trim()
-  #   |> String.split(",")
-  #   |> Enum.map(&String.trim(&1, "\""))
-  #   |> List.update_at(1, &String.to_float/1)
-  # end
+  defp format_line({date, value, method, description}) do
+    "\"#{date}\",#{value},\"#{method}\",\"#{description}\""
+  end
 end
