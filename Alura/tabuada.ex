@@ -1,5 +1,5 @@
 defmodule Module.Tabuada do
-  def calcula(multiplicador) do
+  def calcula(multiplicador) when is_integer(multiplicador) and multiplicador > 0 do
     tabuada(multiplicador, 1)
   end
 
