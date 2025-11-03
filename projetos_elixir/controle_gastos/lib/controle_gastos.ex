@@ -3,7 +3,7 @@ defmodule ControleGastos do
   Módulo simples de controle de gastos.
 
   Permite ler, adicionar e salvar registros no formato CSV:
-  `"data","valor","método","descrição"`
+  `"id","data","valor","método_de_pagamento","descrição"`
   """
 
   @default_path "gastos.csv"
@@ -13,14 +13,14 @@ defmodule ControleGastos do
 
   @doc """
   Lê um arquivo CSV simples e retorna uma lista de tuplas no formato:
-  `{date, value, payment_method, description}`.
+  `{id, date, value, payment_method, description}`.
 
   ## Exemplo
 
       iex> ControleGastos.read_file("gastos.csv")
       [
-        {"2025-10-31", 34.9, "vr", "almoço"},
-        {"2025-10-31", 7.6, "rc", "trem"}
+        {1, "2025-10-31", 34.9, "vr", "almoço"},
+        {2, "2025-10-31", 7.6, "rc", "trem"}
       ]
   """
   def read_file(path \\ @default_path), do: stream_lines(path) |> Enum.to_list()
