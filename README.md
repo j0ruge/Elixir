@@ -40,6 +40,14 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
     - [Forma Implícita](#forma-implícita)
     - [Comparação](#comparação)
     - [Conclusão](#conclusão-2)
+  - [Range](#range)
+    - [🔢 Criação de intervalos](#-criação-de-intervalos)
+    - [📜 Convertendo em lista](#-convertendo-em-lista)
+    - [⚙️ Intervalos com passo (`//`)](#️-intervalos-com-passo-)
+    - [✖️ Aplicando operações com Enum](#️-aplicando-operações-com-enum)
+    - [🚀 Ranges e performance](#-ranges-e-performance)
+    - [🧩 Integração com Enum e pipelines](#-integração-com-enum-e-pipelines)
+    - [🧾 Resumo](#-resumo)
   - [Enum](#enum)
     - [🔍 O que são tipos enumeráveis](#-o-que-são-tipos-enumeráveis)
     - [⚙️ Principais funções do módulo Enum](#️-principais-funções-do-módulo-enum)
@@ -52,7 +60,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
       - [💡 Exemplos](#-exemplos)
     - [🚀 Exemplo prático com pipeline](#-exemplo-prático-com-pipeline)
     - [🧠 Integração com o projeto](#-integração-com-o-projeto)
-    - [🧾 Resumo](#-resumo)
+    - [🧾 Resumo](#-resumo-1)
   - [Guard Clauses](#guard-clauses)
     - [Exemplo prático](#exemplo-prático)
     - [Explicação detalhada](#explicação-detalhada)
@@ -545,6 +553,118 @@ Ambas as formas são válidas — o importante é **usar a que torna o código m
 Em código de produção, a forma implícita costuma ser preferida por sua concisão, especialmente em pipelines (`|>`), onde a clareza do fluxo é mais importante do que a estrutura da função em si.
 
 > 💡 **Dica:** se a função anônima começa a ficar muito complexa, prefira a forma explícita ou extraia a lógica para uma função nomeada.
+
+---
+
+## Range
+
+O tipo **`Range`** (intervalo) em Elixir representa uma sequência contínua de inteiros, definida por um valor inicial, um valor final e, opcionalmente, um **passo** de incremento ou decremento.
+É uma estrutura muito útil para **gerar sequências numéricas** de forma simples e eficiente, sem precisar criar listas manualmente.
+
+---
+
+### 🔢 Criação de intervalos
+
+A forma mais comum de criar um intervalo é usando a sintaxe com **dois pontos duplos (`..`)**:
+
+```elixir
+1..10
+```
+
+Esse intervalo representa todos os números de **1 até 10**, inclusive.
+Ou seja, ele contém `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]`.
+
+---
+
+### 📜 Convertendo em lista
+
+Para visualizar os valores de um `Range`, basta convertê-lo em lista com `Enum.to_list/1`:
+
+```elixir
+Enum.to_list(1..10)
+# => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+```
+
+---
+
+### ⚙️ Intervalos com passo (`//`)
+
+Também é possível criar intervalos que “pulam” valores, especificando o **passo** com a notação `//`.
+
+```elixir
+Enum.to_list(1..10//2)
+# => [1, 3, 5, 7, 9]
+```
+
+Aqui o intervalo começa em `1`, vai até `10`, mas avança de **2 em 2**.
+Repare que o último número (`10`) é ignorado porque o incremento não o alcança exatamente.
+
+---
+
+### ✖️ Aplicando operações com Enum
+
+Ranges podem ser usados diretamente com funções do módulo `Enum`.
+Por exemplo, para gerar uma **tabuada de multiplicação**, basta aplicar `Enum.map/2`:
+
+```elixir
+Enum.map(1..10, &(&1 * 5))
+# => [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
+```
+
+Ou a tabuada de 3:
+
+```elixir
+Enum.map(1..10, &(&1 * 3))
+# => [3, 6, 9, 12, 15, 18, 21, 24, 27, 30]
+```
+
+Com isso, você evita criar funções recursivas manuais — algo que, apesar de importante em alguns contextos de aprendizado, **não é necessário** aqui, pois o `Enum` oferece uma forma **performática e expressiva** de resolver o problema.
+
+---
+
+### 🚀 Ranges e performance
+
+Uma vantagem importante dos intervalos é que eles **não armazenam todos os valores em memória**.
+Eles representam apenas o **início**, o **fim** e o **passo**, sendo expandidos conforme necessário.
+Isso permite criar ranges enormes sem comprometer a performance:
+
+```elixir
+1..1_000_000
+# => Cria um intervalo de 1 até 1 milhão (sem gerar todos os valores ainda)
+```
+
+Se for convertido em lista (`Enum.to_list/1`), então sim, todos os valores serão materializados na memória.
+
+> 💡 Dica de sintaxe: em Elixir, é possível usar **underlines (`_`)** em números grandes para melhorar a legibilidade:
+> `1_000_000` é o mesmo que `1000000`.
+
+---
+
+### 🧩 Integração com Enum e pipelines
+
+Como `Range` é um tipo **enumerável**, ele pode ser utilizado em pipelines com o módulo `Enum`, permitindo transformações elegantes e expressivas:
+
+```elixir
+1..10
+|> Enum.filter(&(rem(&1, 2) == 0))
+|> Enum.map(&(&1 * 3))
+|> Enum.into([])
+# => [6, 12, 18, 24, 30]
+```
+
+Aqui filtramos apenas os números pares, multiplicamos por 3 e convertemos o resultado em uma lista.
+
+---
+
+### 🧾 Resumo
+
+| Conceito               | Exemplo                     | Resultado            |
+| ---------------------- | --------------------------- | -------------------- |
+| Criação de intervalo   | `1..5`                      | `1..5`               |
+| Converter em lista     | `Enum.to_list(1..5)`        | `[1, 2, 3, 4, 5]`    |
+| Passo personalizado    | `Enum.to_list(1..10//3)`    | `[1, 4, 7, 10]`      |
+| Multiplicação com Enum | `Enum.map(1..5, &(&1 * 2))` | `[2, 4, 6, 8, 10]`   |
+| Intervalo grande       | `1..1_000_000`              | (gerado sob demanda) |
 
 ---
 
