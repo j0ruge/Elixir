@@ -41,16 +41,17 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
     - [Comparação](#comparação)
     - [Conclusão](#conclusão-2)
   - [Enum](#enum)
+    - [🔍 O que são tipos enumeráveis](#-o-que-são-tipos-enumeráveis)
+    - [⚙️ Principais funções do módulo Enum](#️-principais-funções-do-módulo-enum)
+      - [`Enum.map/2`](#enummap2)
+      - [`Enum.filter/2`](#enumfilter2)
+      - [`Enum.sum/1`](#enumsum1)
+      - [`Enum.reduce/3`](#enumreduce3)
+    - [🧩 Outras funções úteis](#-outras-funções-úteis)
     - [Enum.into](#enuminto)
-      - [📦 Estrutura](#-estrutura)
-      - [💡 Exemplos básicos](#-exemplos-básicos)
-        - [1. Convertendo um `Range` em `List`](#1-convertendo-um-range-em-list)
-        - [2. Criando um `Map` a partir de uma lista de tuplas](#2-criando-um-map-a-partir-de-uma-lista-de-tuplas)
-        - [3. Adicionando elementos a um `Map` existente](#3-adicionando-elementos-a-um-map-existente)
-        - [4. Convertendo um `Map` em uma `List`](#4-convertendo-um-map-em-uma-list)
-      - [🧠 Quando usar `Enum.into`](#-quando-usar-enuminto)
-      - [🚀 Exemplo prático com pipeline](#-exemplo-prático-com-pipeline)
-      - [🧩 Integração com o código do projeto](#-integração-com-o-código-do-projeto)
+      - [💡 Exemplos](#-exemplos)
+    - [🚀 Exemplo prático com pipeline](#-exemplo-prático-com-pipeline)
+    - [🧠 Integração com o projeto](#-integração-com-o-projeto)
     - [🧾 Resumo](#-resumo)
   - [Guard Clauses](#guard-clauses)
     - [Exemplo prático](#exemplo-prático)
@@ -547,87 +548,131 @@ Em código de produção, a forma implícita costuma ser preferida por sua conci
 
 ---
 
-Perfeito — aqui vai um tópico pronto para o teu `README.md`, explicando **`Enum.into/2`** de forma clara e com exemplos práticos no mesmo estilo dos outros tópicos.
-
----
-
 ## Enum
 
 O módulo `Enum` é uma das partes mais poderosas da linguagem Elixir.
-Ele oferece funções para manipular coleções (listas, mapas, ranges, streams etc.) de forma **declarativa e funcional**.
-Com `Enum`, é possível transformar, filtrar, reduzir e agregar dados sem usar laços imperativos.
+Ele oferece funções para manipular coleções — chamadas de **enumeráveis** — como listas, mapas, ranges, streams e muito mais, de forma **declarativa e funcional**.
 
-Entre as muitas funções do módulo, uma das mais úteis é **`Enum.into/2`**, usada para **converter ou acumular coleções em outro tipo de estrutura**.
+Um **tipo enumerável** é qualquer conjunto de dados que pode ser percorrido e ter operações aplicadas a cada elemento.
+Com o `Enum`, podemos **transformar**, **filtrar**, **reduzir** e **agregar** dados sem usar laços imperativos como `for` ou `while`.
+
+---
+
+### 🔍 O que são tipos enumeráveis
+
+Enumeráveis são estruturas que o Elixir consegue percorrer automaticamente.
+Entre os tipos mais comuns estão:
+
+- **Listas** (`[1, 2, 3]`)
+- **Mapas** (`%{a: 1, b: 2}`)
+- **Ranges** (`1..10`)
+
+Esses tipos podem ser processados pelo módulo `Enum` com funções como `map`, `filter` e `reduce`.
+
+---
+
+### ⚙️ Principais funções do módulo Enum
+
+#### `Enum.map/2`
+
+Aplica uma função a cada elemento de uma coleção e retorna uma nova coleção com os resultados.
+
+```elixir
+Enum.map([1, 2, 3], fn x -> x * 2 end)
+# => [2, 4, 6]
+
+# Usando sintaxe de captura:
+Enum.map([1, 2, 3], &(&1 * 2))
+# => [2, 4, 6]
+```
+
+---
+
+#### `Enum.filter/2`
+
+Filtra os elementos de uma coleção conforme uma condição booleana.
+
+```elixir
+require Integer
+
+Enum.filter([1, 2, 3, 4], &Integer.is_even/1)
+# => [2, 4]
+```
+
+> 💡 A função `Integer.is_even/1` é uma **macro**, por isso é necessário usar `require Integer` antes de chamá-la.
+
+---
+
+#### `Enum.sum/1`
+
+Soma todos os elementos de uma coleção numérica.
+
+```elixir
+Enum.sum([1, 2, 3])
+# => 6
+```
+
+Essa é uma forma simplificada de uma operação de **redução**.
+
+---
+
+#### `Enum.reduce/3`
+
+Reduz uma coleção a um único valor, acumulando os resultados passo a passo.
+
+```elixir
+Enum.reduce([1, 2, 3], 0, fn x, acc -> x + acc end)
+# => 6
+```
+
+Aqui, `acc` (acumulador) começa em `0` e vai sendo somado a cada elemento da lista.
+
+---
+
+### 🧩 Outras funções úteis
+
+O módulo `Enum` possui dezenas de funções para manipular coleções.
+Algumas delas incluem:
+
+- `Enum.all?/2` — verifica se todos os elementos satisfazem uma condição.
+- `Enum.any?/2` — verifica se **algum** elemento satisfaz a condição.
+- `Enum.count/1` — retorna o número de elementos.
+- `Enum.take/2` — pega os primeiros *n* elementos de uma coleção.
+- `Enum.concat/2` — une duas coleções.
+
+> Consulte a [documentação oficial do Enum](https://hexdocs.pm/elixir/Enum.html) para conhecer todas as funções disponíveis.
 
 ---
 
 ### Enum.into
 
-A função `Enum.into/2` pega uma coleção enumerável (lista, mapa, stream etc.) e **a insere em outra coleção destino**, respeitando o formato do destino.
-Em outras palavras, ela “transforma” uma enumeração em outro tipo de estrutura — por exemplo, de uma lista para um mapa, ou de um range para uma lista.
-
-#### 📦 Estrutura
+A função `Enum.into/2` é uma das mais úteis quando queremos **converter** ou **acumular** coleções em outro tipo de estrutura.
 
 ```elixir
 Enum.into(enumerable, collectable)
 ```
 
-- **`enumerable`** → é a fonte de dados, como uma lista, mapa, ou range.
-- **`collectable`** → é a coleção destino, que vai receber os dados da fonte.
+- **`enumerable`** → fonte de dados (lista, mapa, range etc.)
+- **`collectable`** → destino que receberá os dados (lista, mapa etc.)
 
 ---
 
-#### 💡 Exemplos básicos
-
-##### 1. Convertendo um `Range` em `List`
+#### 💡 Exemplos
 
 ```elixir
 Enum.into(1..5, [])
 # => [1, 2, 3, 4, 5]
-```
 
-Aqui, o range `1..5` é “inserido” dentro de uma lista vazia (`[]`), produzindo uma lista de números.
-
-##### 2. Criando um `Map` a partir de uma lista de tuplas
-
-```elixir
 Enum.into([{:apple, 10}, {:banana, 20}], %{})
 # => %{apple: 10, banana: 20}
-```
 
-A lista contém tuplas de chave/valor. O `Enum.into` transforma isso em um mapa.
-
-##### 3. Adicionando elementos a um `Map` existente
-
-```elixir
 Enum.into([{:pear, 15}], %{apple: 10, banana: 20})
 # => %{apple: 10, banana: 20, pear: 15}
 ```
 
-O `Enum.into` também serve para “fundir” dados em uma estrutura já existente.
-
-##### 4. Convertendo um `Map` em uma `List`
-
-```elixir
-Enum.into(%{a: 1, b: 2}, [])
-# => [a: 1, b: 2]
-```
-
-O processo é inverso: o mapa vira uma lista de tuplas.
-
 ---
 
-#### 🧠 Quando usar `Enum.into`
-
-Use `Enum.into/2` quando você:
-
-- Quer **converter** de um tipo de coleção para outro.
-- Precisa **acumular** dados em uma estrutura existente (por exemplo, adicionar pares a um mapa).
-- Está montando pipelines de transformação com o operador `|>` e quer terminar com um tipo específico.
-
----
-
-#### 🚀 Exemplo prático com pipeline
+### 🚀 Exemplo prático com pipeline
 
 ```elixir
 1..5
@@ -635,14 +680,13 @@ Use `Enum.into/2` quando você:
 |> Enum.into([])
 ```
 
-1. O `Range` `1..5` é transformado em `[2, 4, 6, 8, 10]` pelo `map`.
-2. Depois, o `Enum.into` pega o resultado e garante que ele vire uma lista (útil quando o pipeline pode gerar outros tipos de coleção).
+O `Range` `1..5` é mapeado para `[2, 4, 6, 8, 10]` e, em seguida, transformado em uma lista com `Enum.into`.
 
 ---
 
-#### 🧩 Integração com o código do projeto
+### 🧠 Integração com o projeto
 
-No contexto do teu projeto (como o `ReportsGenerator`), o `Enum.into/2` pode ser usado, por exemplo, para transformar o resultado de um `Stream` em um mapa:
+No contexto do projeto `ReportsGenerator`, por exemplo, `Enum` pode transformar um `Stream` de linhas de arquivo em um mapa:
 
 ```elixir
 "reports/#{filename}"
@@ -651,22 +695,17 @@ No contexto do teu projeto (como o `ReportsGenerator`), o `Enum.into/2` pode ser
 |> Enum.into(%{})
 ```
 
-Assim, cada linha do arquivo vira um item no mapa final, de forma elegante e funcional.
-
 ---
 
 ### 🧾 Resumo
 
-| Função                          | O que faz                            | Exemplo         | Resultado       |
-| ------------------------------- | ------------------------------------ | --------------- | --------------- |
-| `Enum.into(1..3, [])`           | Converte Range em lista              | `[1, 2, 3]`     | `[1, 2, 3]`     |
-| `Enum.into([{:a, 1}], %{})`     | Converte lista de tuplas em mapa     | `%{a: 1}`       | `%{a: 1}`       |
-| `Enum.into(%{x: 9}, [])`        | Converte mapa em lista               | `[x: 9]`        | `[x: 9]`        |
-| `Enum.into([{:y, 8}], %{x: 9})` | Adiciona elementos ao mapa existente | `%{x: 9, y: 8}` | `%{x: 9, y: 8}` |
-
----
-
-Aqui está uma versão revisada e bem organizada da tua transcrição, já formatada para o **README.md** do teu repositório de estudos em Elixir, com explicação didática e tom de documentação técnica, sem perder o conteúdo original:
+| Função          | Descrição                                | Exemplo                                           | Resultado            |           |
+| --------------- | ---------------------------------------- | ------------------------------------------------- | -------------------- | --------- |
+| `Enum.map/2`    | Aplica função em cada elemento           | `[1,2,3]                                          | > Enum.map(&(&1*2))` | `[2,4,6]` |
+| `Enum.filter/2` | Filtra elementos que satisfazem condição | `Enum.filter([1,2,3,4], &Integer.is_even/1)`      | `[2,4]`              |           |
+| `Enum.sum/1`    | Soma todos os elementos                  | `Enum.sum([1,2,3])`                               | `6`                  |           |
+| `Enum.reduce/3` | Reduz coleção a um valor acumulado       | `Enum.reduce([1,2,3], 0, fn x, acc -> x+acc end)` | `6`                  |           |
+| `Enum.into/2`   | Converte coleção em outro tipo           | `Enum.into([{:a,1}], %{})`                        | `%{a: 1}`            |           |
 
 ---
 
