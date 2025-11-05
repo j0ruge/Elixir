@@ -36,7 +36,6 @@ defmodule ControleGastos do
     new_entry
   end
 
-  # Adiciona uma nova linha ao arquivo (append)
   def add_entry(payment_method, description, path \\ @default_path) do
     new_id = get_new_id(path)
 
