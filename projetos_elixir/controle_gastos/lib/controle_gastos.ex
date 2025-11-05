@@ -27,19 +27,42 @@ defmodule ControleGastos do
 
   # Adiciona uma nova linha ao arquivo (append)
   def add_entry(date, value, payment_method, description, path \\ @default_path) do
-    entries = list_entries(path)
-
-    new_id =
-      entries
-      |> Enum.map(fn {id, _, _, _, _} -> id end)
-      |> Enum.max(fn -> 0 end)
-      |> Kernel.+(1)
+    new_id = get_new_id(path)
 
     new_entry = {new_id, date, value, payment_method, description}
     line = format_line(new_entry)
 
     File.write!(path, line <> "\n", [:append])
     new_entry
+  end
+
+  # Adiciona uma nova linha ao arquivo (append)
+  def add_entry(payment_method, description, path \\ @default_path) do
+    new_id = get_new_id(path)
+
+    today = Date.utc_today() |> to_string
+
+    value =
+      case description do
+        "metrô" -> 7.9
+        "trêm" -> 7.6
+        _default -> nil
+      end
+
+    new_entry = {new_id, today, value, payment_method, description}
+    line = format_line(new_entry)
+
+    File.write!(path, line <> "\n", [:append])
+    new_entry
+  end
+
+  defp get_new_id(path) do
+    entries = list_entries(path)
+
+    entries
+    |> Enum.map(fn {id, _, _, _, _} -> id end)
+    |> Enum.max(fn -> 0 end)
+    |> Kernel.+(1)
   end
 
   def delete_entry(id) do
@@ -51,7 +74,7 @@ defmodule ControleGastos do
   end
 
   # Salva uma lista de entradas sobrescrevendo o arquivo
-  def save(entries, path \\ @default_path) do
+  defp save(entries, path \\ @default_path) do
     content =
       entries
       |> Enum.map(&format_line/1)
