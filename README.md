@@ -102,6 +102,7 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
       - [GenServer](#genserver)
     - [Conclusão](#conclusão-5)
   - [Objetivo](#objetivo)
+  - [Projeto de testes com Elixir](#projeto-de-testes-com-elixir)
 
 ## Sobre Elixir
 
@@ -1330,3 +1331,5 @@ Sobre essa base, construímos **abstrações** como `Task`, `Agent` e `GenServer
 Este repositório serve como apoio para quem deseja aprender Elixir, praticar conceitos fundamentais e acompanhar aulas em vídeo sobre a linguagem.
 
 ---
+
+## [Projeto de testes com Elixir](./Alura/elixir_teste/README.md)
