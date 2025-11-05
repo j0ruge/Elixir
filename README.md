@@ -83,6 +83,24 @@ Este repositório reúne exemplos e materiais para aprender e praticar Elixir, u
     - [`is_` vs `?` em funções booleanas](#is_-vs--em-funções-booleanas)
     - [`size` vs `length`](#size-vs-length)
     - [Resumo das principais convenções](#resumo-das-principais-convenções)
+  - [Spawn](#spawn)
+    - [Criando processos com `spawn/1`](#criando-processos-com-spawn1)
+    - [Verificando se um processo está ativo](#verificando-se-um-processo-está-ativo)
+    - [Obtendo o PID do processo atual](#obtendo-o-pid-do-processo-atual)
+    - [Conclusão](#conclusão-3)
+  - [Comunicação entre Processos](#comunicação-entre-processos)
+    - [Enviando e recebendo mensagens](#enviando-e-recebendo-mensagens)
+    - [O que acontece nos bastidores](#o-que-acontece-nos-bastidores)
+    - [Supervisão e tolerância a falhas](#supervisão-e-tolerância-a-falhas)
+    - [Conclusão](#conclusão-4)
+  - [Comunicação entre Processos (continuação)](#comunicação-entre-processos-continuação)
+    - [Enviando mensagens para si mesmo](#enviando-mensagens-para-si-mesmo)
+    - [Timeout em `receive`](#timeout-em-receive)
+    - [Abstrações de mais alto nível](#abstrações-de-mais-alto-nível)
+      - [Task](#task)
+      - [Agent](#agent)
+      - [GenServer](#genserver)
+    - [Conclusão](#conclusão-5)
   - [Objetivo](#objetivo)
 
 ## Sobre Elixir
@@ -1095,6 +1113,215 @@ Saber essa diferença ajuda a entender o impacto de performance das suas escolha
 | **Função perigosa**      | Terminar com `!` | `File.read!`        | Pode lançar erro                         |
 | **Constante de tamanho** | `size`           | `map_size(map)`     | Tempo constante                          |
 | **Comprimento**          | `length`         | `length(lista)`     | Tempo linear                             |
+
+---
+
+## Spawn
+
+O conceito de **processos** é central em Elixir. Toda aplicação é construída sobre eles — são a base da concorrência, da paralelização e da tolerância a falhas da linguagem.
+
+Em Elixir, cada pedaço de código pode ser executado dentro de um **processo leve**, totalmente gerenciado pela **Erlang Virtual Machine (BEAM)**. Diferente dos processos do sistema operacional, esses processos são extremamente leves e eficientes, podendo existir **milhares deles rodando simultaneamente**.
+
+O **Erlang** cuida de todo o gerenciamento — criação, escalonamento e finalização dos processos. Por isso, Elixir consegue lidar com alto volume de tarefas concorrentes sem consumir muitos recursos de CPU ou memória.
+
+Um exemplo prático: quando escrevemos em um arquivo, cada operação de escrita é executada em um processo separado, permitindo que várias operações ocorram de forma **concorrente**.
+
+### Criando processos com `spawn/1`
+
+Para criar um processo, usamos a função `spawn/1`, que recebe uma função anônima como argumento.
+
+```elixir
+spawn(fn -> IO.puts("Estou em outro processo") end)
+```
+
+Esse código inicia um **novo processo** que imprime a mensagem no console. Ao executar, o `spawn` retorna um **PID** (Process ID), que é o identificador único daquele processo:
+
+```elixir
+pid = spawn(fn -> IO.puts("Executando em paralelo!") end)
+#=> #PID<0.105.0>
+```
+
+O PID identifica o processo dentro da VM, e **não deve ser confundido** com o PID do sistema operacional.
+
+### Verificando se um processo está ativo
+
+Podemos verificar se um processo ainda está em execução com a função `Process.alive?/1`:
+
+```elixir
+pid = spawn(fn -> IO.puts("Rodando...") end)
+Process.alive?(pid)
+#=> false  (o processo já terminou)
+```
+
+Como os processos geralmente executam rapidamente, ao chamarmos `Process.alive?`, ele pode já ter sido encerrado.
+
+### Obtendo o PID do processo atual
+
+Para saber o PID do processo em que o código está rodando, usamos a função `self/0`:
+
+```elixir
+self()
+#=> #PID<0.90.0>
+```
+
+Saber o PID atual é útil quando queremos que um processo **se comunique consigo mesmo** — por exemplo, enviando mensagens para manter um tipo de estado interno (apesar de Elixir ser uma linguagem funcional e imutável).
+
+### Conclusão
+
+Os processos são a **espinha dorsal** da concorrência em Elixir. Eles são leves, isolados e comunicam-se por mensagens, não compartilhando memória.
+Com `spawn`, podemos iniciar novos processos com facilidade, ganhando em **paralelismo** e **resiliência** — fundamentos do modelo de concorrência do Elixir.
+
+---
+
+## Comunicação entre Processos
+
+Em Elixir, os **processos** não compartilham memória — eles se comunicam exclusivamente por meio do **envio e recebimento de mensagens**. Essa troca de mensagens é a base da concorrência na linguagem e o que torna o modelo de processos tão poderoso e seguro.
+
+### Enviando e recebendo mensagens
+
+Para receber mensagens dentro de um processo, usamos a macro `receive`. Dentro dela, podemos definir padrões com **pattern matching** para tratar as mensagens recebidas.
+
+Um exemplo simples:
+
+```elixir
+pid = spawn(fn ->
+  receive do
+    conteudo -> IO.puts(conteudo)
+  end
+end)
+```
+
+Esse código cria um novo processo que fica **aguardando** uma mensagem. Assim que uma mensagem chega, o processo a exibe no console e depois é encerrado.
+
+Para enviar uma mensagem, usamos a função `send/2`, que recebe o **PID** do processo e o conteúdo da mensagem:
+
+```elixir
+send(pid, "Mensagem enviada para o processo filho")
+#=> "Mensagem enviada para o processo filho"
+```
+
+Ao enviar a mensagem, o código dentro do `receive` é executado, exibindo o texto no console.
+
+Depois disso, o processo é finalizado, pois ele recebeu apenas **uma** mensagem e não foi instruído a continuar aguardando novas.
+
+Se tentarmos enviar outra mensagem para o mesmo PID:
+
+```elixir
+send(pid, "Outra mensagem")
+```
+
+Nada acontecerá, pois o processo já terminou. Podemos confirmar isso com:
+
+```elixir
+Process.alive?(pid)
+#=> false
+```
+
+O resultado mostra que o processo não está mais vivo.
+
+### O que acontece nos bastidores
+
+Um processo que contém um bloco `receive` fica **bloqueado** esperando uma mensagem. Quando a mensagem chega e é tratada, ele encerra — a menos que o código tenha sido escrito para permanecer em um **loop de espera contínuo** (o que é comum em servidores e supervisores).
+
+### Supervisão e tolerância a falhas
+
+A comunicação entre processos é a base do modelo de **supervisão** do Elixir.
+Um **Supervisor Tree** (árvore de supervisão) é uma estrutura em que um processo supervisor cria (spawn) e gerencia diversos processos filhos, como por exemplo:
+
+- Um processo que recebe conexões HTTP
+- Outro que processa as requisições
+- Outro que acessa o banco de dados
+
+Cada processo é **independente**. Se um deles falhar, o sistema continua funcionando, pois o supervisor pode recriar o processo afetado automaticamente.
+
+### Conclusão
+
+Com o envio e recebimento de mensagens, o Elixir implementa um modelo de concorrência leve, seguro e altamente tolerante a falhas.
+Esse é o **fundamento da arquitetura de aplicações Elixir** — processos que se comunicam, supervisionam uns aos outros e mantêm o sistema estável mesmo diante de erros.
+
+---
+
+## Comunicação entre Processos (continuação)
+
+Nesta parte, aprofundamos alguns comportamentos importantes dos processos no Elixir, como o envio de mensagens para o próprio processo, o uso de **timeout** com `receive` e a introdução de **abstrações de mais alto nível** para lidar com concorrência.
+
+### Enviando mensagens para si mesmo
+
+Podemos enviar uma mensagem para o **nosso próprio processo** usando `send(self(), mensagem)`. Por exemplo:
+
+```elixir
+send(self(), {:ok, "Isso é uma mensagem de sucesso"})
+IO.puts("Meu processo está destravado")
+```
+
+A função `send/2` **não bloqueia** a execução — ela apenas adiciona a mensagem na **mailbox** (caixa de correio) do processo destino. No caso acima, o processo enviou uma mensagem para si mesmo e continuou executando normalmente.
+
+Para ler essa mensagem, usamos `receive`:
+
+```elixir
+receive do
+  {:ok, conteudo} -> IO.puts(conteudo)
+end
+```
+
+Ao executar esse bloco, a mensagem armazenada é exibida. Mas se não houver mensagens na mailbox, o processo **fica bloqueado**, aguardando algo chegar.
+
+Se executarmos novamente o `receive` sem novas mensagens, o processo trava. Por isso, precisamos lidar com possíveis **timeouts**.
+
+### Timeout em `receive`
+
+Podemos definir um tempo máximo de espera usando a cláusula `after`:
+
+```elixir
+receive do
+  qualquer_coisa -> IO.puts(qualquer_coisa)
+after
+  1000 -> IO.puts("Deu timeout")
+end
+```
+
+Nesse exemplo, o processo esperará **1 segundo (1000 ms)** por uma mensagem. Caso nenhuma chegue, o bloco `after` é executado e a mensagem `"Deu timeout"` é exibida.
+O `receive` também **retorna o valor da última expressão** executada — neste caso, o retorno de `IO.puts/1` (`:ok`).
+
+### Abstrações de mais alto nível
+
+O uso direto de `spawn`, `send` e `receive` mostra o funcionamento interno dos processos, mas na prática, raramente lidamos com eles dessa forma. O Elixir (através do OTP) fornece **abstrações mais seguras e produtivas** para lidar com processos, como:
+
+#### Task
+
+Usamos **Task** quando precisamos executar tarefas em **plano de fundo**, de forma assíncrona, e eventualmente obter seu resultado.
+
+```elixir
+task = Task.async(fn -> 1 + 1 end)
+Task.await(task)
+#=> 2
+```
+
+`Task.async/1` cria um processo (semelhante a `spawn`), e `Task.await/1` aguarda o resultado da execução.
+
+Também podemos criar uma tarefa com módulo, função e argumentos:
+
+```elixir
+Task.async(MyModule, :minha_funcao, [param1, param2])
+```
+
+#### Agent
+
+Um **Agent** é uma abstração de processo usada para **manter e manipular estado**. Ele executa em segundo plano, recebendo mensagens que atualizam ou retornam valores internos.
+
+É útil quando precisamos de um estado compartilhado entre partes do sistema, sem quebrar a imutabilidade da linguagem.
+
+#### GenServer
+
+O **GenServer** é uma estrutura mais poderosa e genérica, usada para criar **servidores de longa duração**.
+Ele permanece em execução, recebendo mensagens continuamente e respondendo conforme o **pattern matching** definido nas funções `handle_cast` (para mensagens assíncronas) e `handle_call` (para chamadas síncronas).
+
+Por exemplo, um servidor web pode ser modelado como um GenServer que fica constantemente esperando por requisições e respondendo a cada uma.
+
+### Conclusão
+
+Os processos são a base de tudo no Elixir: podemos criá-los, enviar e receber mensagens, definir timeouts e até monitorá-los.
+Sobre essa base, construímos **abstrações** como `Task`, `Agent` e `GenServer`, que tornam o desenvolvimento de aplicações concorrentes e tolerantes a falhas muito mais simples e elegante.
 
 ---
 
