@@ -6,7 +6,7 @@ defmodule ControleGastos do
   `"id","data","valor","método_de_pagamento","descrição"`
   """
 
-  @default_path "gastos.csv"
+  @default_path Path.join([:code.priv_dir(:controle_gastos), "gastos_test.csv"])
 
   # Lê o arquivo como Stream (preguiçoso)
   def parse_file(path \\ @default_path), do: stream_lines(path)
@@ -92,6 +92,8 @@ defmodule ControleGastos do
   end
 
   defp stream_lines(path) do
+    IO.inspect(path)
+
     File.stream!(path)
     |> Stream.map(&parse_line/1)
   end
