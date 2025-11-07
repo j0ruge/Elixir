@@ -9,7 +9,10 @@ defmodule ElixirTest.Application do
       worker(ElixirTeste.Agendador, [])
     ]
 
-    opts = [strategy: :one_for_one, name: YourApp.Supervisor]
+    opts = [
+      strategy: :one_for_one, 
+      name: ElixirTeste.Supervisor
+    ]
     Supervisor.start_link(children, opts)
   end
 end
