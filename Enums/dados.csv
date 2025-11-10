@@ -1,0 +1,6 @@
+id,date,customer,product,quantity,price
+1,2025-10-01,"Acme Ltd",Widget,3,19.90
+2,2025-10-01,"Beta SA",Gadget,1,99.00
+3,2025-10-02,"Acme Ltd",Widget,2,19.90
+4,2025-10-03,"Gamma EIRELI",Doohickey,5,4.50
+5,2025-10-03,"Beta SA",Widget,1,19.90
