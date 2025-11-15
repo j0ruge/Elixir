@@ -69,6 +69,10 @@ defmodule ReportsGenerator do
     |> Enum.reduce(report_acc(), fn line, report -> sum_values(line, report) end)
   end
 
+  def build_from_many(file_names) when not is_list(filenames) do
+    {:error, "Please provide a list of strings"}
+  end
+
   def build_from_many(file_names) do
     file_names
     |> Task.async_stream(&build/1)
