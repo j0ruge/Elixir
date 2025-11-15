@@ -73,7 +73,6 @@ defmodule ReportsGenerator do
     file_names
     |> Task.async_stream(&build/1)
     |> Enum.reduce(report_acc(), fn {:ok, result}, report -> sum_reports(report, result) end)
-    |> Enum.map(& &1)
   end
 
   @doc """
