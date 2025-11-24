@@ -12,7 +12,7 @@ defmodule TodoList do
 
   def entries(%TodoList{entries: entries}, date) do
     entries
-    |> Stream.filter(fn _, entry -> entry.date == date end)
+    |> Stream.filter(fn {_, entry} -> entry.date == date end)
     |> Enum.map(fn {_, entry} -> entry end)
   end
 
