@@ -3,7 +3,7 @@ defmodule ToDoList.MixProject do
 
   def project do
     [
-      app: :to_do_list,
+      app: :todo_crud,
       version: "0.1.0",
       elixir: "~> 1.18",
       start_permanent: Mix.env() == :prod,
